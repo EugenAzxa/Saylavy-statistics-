@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Saylavy — Statistics Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#07061A;--card:#12102E;--card-2:#1A1838;--line:#26234A;
+    --text:#F4F3FB;--muted:#9B98C4;
+    --accent:#8B7CF6;--accent-2:#B79CFF;--teal:#4FD8C4;--pink:#F6799E;--amber:#F5B851;--green:#5EE6A8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 600px at 12% -12%, #241a55 0%, transparent 55%),
+      radial-gradient(1000px 520px at 100% -5%, #3a1f5c 0%, transparent 50%),
+      radial-gradient(900px 500px at 50% 120%, #10234a 0%, transparent 55%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:28px 24px 64px}
+  svg{display:block}
+  h1,h2,.val,.big,.goal-num,.qs-val,.center-num{font-family:'Space Grotesk','Inter',sans-serif}
+  a:focus-visible{outline:2px solid var(--accent-2);outline-offset:3px;border-radius:6px}
+
+  /* Header */
+  header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:6px}
+  .brand{display:flex;align-items:center;gap:13px}
+  .logo{width:46px;height:46px;border-radius:13px;
+    background:linear-gradient(135deg,var(--accent),var(--pink));
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;color:#fff;
+    box-shadow:0 10px 30px rgba(139,124,246,.45);animation:float 5s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .brand h1{font-size:22px;font-weight:700;letter-spacing:-.3px;
+    background:linear-gradient(90deg,#fff,#C9BEFF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .brand p{font-size:13px;color:var(--muted);margin-top:2px}
+  .header-right{display:flex;align-items:center;gap:10px}
+  .chips{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);padding:4px;border-radius:12px}
+  .chip{font-size:12.5px;color:var(--muted);padding:6px 12px;border-radius:9px;cursor:pointer;
+    border:none;background:transparent;font-family:inherit;transition:all .2s}
+  .chip.active{background:linear-gradient(135deg,var(--accent),#6f5ff0);color:#fff;box-shadow:0 4px 14px rgba(139,124,246,.4)}
+  .chip:hover:not(.active){color:var(--text)}
+  .live{display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line);
+    padding:9px 14px;border-radius:12px;font-size:12.5px;color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(94,230,168,.5)}70%{box-shadow:0 0 0 8px rgba(94,230,168,0)}100%{box-shadow:0 0 0 0 rgba(94,230,168,0)}}
+  .subtitle{color:var(--muted);font-size:14px;margin:14px 0 22px}
+
+  /* KPI cards */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+  .kpi{background:linear-gradient(180deg,rgba(24,21,54,.9),rgba(20,17,44,.9));border:1px solid var(--line);
+    border-radius:18px;padding:18px 20px;position:relative;overflow:hidden;backdrop-filter:blur(6px)}
+  .kpi .top{display:flex;align-items:center;justify-content:space-between}
+  .kpi .label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:9px}
+  .ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+  .kpi .val{font-size:29px;font-weight:700;margin:12px 0 8px;letter-spacing:-.5px}
+  .kpi .foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .delta{font-size:12px;font-weight:600}
+  .up{color:var(--green)}.down{color:var(--pink)}.neutral{color:var(--muted)}
+  .spark{width:70px;height:26px;opacity:.9}
+
+  /* Profit banner */
+  .banner{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:0;margin-bottom:16px;
+    background:linear-gradient(120deg,rgba(139,124,246,.22),rgba(246,121,158,.16),rgba(79,216,196,.16));
+    border:1px solid rgba(139,124,246,.35);border-radius:18px;overflow:hidden}
+  .banner .cell{padding:18px 22px;border-left:1px solid rgba(255,255,255,.07)}
+  .banner .cell:first-child{border-left:none}
+  .banner .b-label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}
+  .banner .b-val{font-size:26px;font-weight:700;margin-top:8px;letter-spacing:-.5px;font-family:'Space Grotesk',sans-serif}
+  .b-val.pos{color:var(--green)}
+  .roi-pill{display:inline-block;margin-top:6px;font-size:11.5px;font-weight:600;color:var(--green);
+    background:rgba(94,230,168,.14);border:1px solid rgba(94,230,168,.3);padding:3px 10px;border-radius:99px}
+
+  /* layout */
+  .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+  .sales{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .card{background:linear-gradient(180deg,rgba(24,21,54,.9),rgba(20,17,44,.9));border:1px solid var(--line);
+    border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px)}
+  .card h3{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+  .card .hint{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+  .chart-box{position:relative;height:260px}
+  .chart-sm{position:relative;height:200px}
+  .dough-wrap{position:relative}
+  .center-num{position:absolute;top:44%;left:0;right:0;text-align:center;font-size:26px;font-weight:700;transform:translateY(-50%);pointer-events:none}
+  .center-lbl{position:absolute;top:58%;left:0;right:0;text-align:center;font-size:11px;color:var(--muted);pointer-events:none}
+
+  /* Downloads goal */
+  .goal-num{font-size:34px;font-weight:700;letter-spacing:-1px;margin:4px 0 2px}
+  .goal-sub{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+  .track{height:14px;background:#221f45;border-radius:99px;overflow:hidden;position:relative}
+  .track .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--green));
+    box-shadow:0 0 16px rgba(94,230,168,.5);width:0;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+  .track .zone{position:absolute;top:-3px;height:20px;border-left:2px dashed var(--accent-2);opacity:.7}
+  .goal-legend{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:8px}
+  .goal-tag{margin-top:14px;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
+    color:var(--green);background:rgba(94,230,168,.12);border:1px solid rgba(94,230,168,.25);padding:6px 12px;border-radius:99px}
+
+  /* locations */
+  .loc-row{display:flex;align-items:center;gap:12px;margin-bottom:15px;font-size:13.5px}
+  .loc-row .flag{font-size:18px;width:24px;text-align:center}
+  .loc-row .name{width:110px}
+  .loc-row .bar{flex:1;height:9px;background:#221f45;border-radius:99px;overflow:hidden}
+  .loc-row .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    width:0;transition:width 1s cubic-bezier(.22,1,.36,1)}
+  .loc-row .pct{width:44px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+
+  /* sales */
+  .sales-head{display:flex;align-items:center;gap:10px;margin:26px 0 16px;flex-wrap:wrap}
+  .sales-head h2{font-size:18px}
+  .sales-head span{font-size:13px;color:var(--muted);margin-left:auto}
+  .sale-card{background:linear-gradient(180deg,rgba(24,21,54,.9),rgba(20,17,44,.9));border:1px solid var(--line);
+    border-radius:18px;padding:22px;position:relative;overflow:hidden}
+  .sale-ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+  .sale-card .big{font-size:40px;font-weight:700;margin:2px 0;letter-spacing:-1px}
+  .sale-card .name{font-size:14px;color:var(--muted)}
+  .sale-card .rev{margin-top:14px;font-size:13px;border-top:1px solid var(--line);padding-top:12px}
+  .sale-card .rev b{color:var(--teal)}
+  .ribbon{position:absolute;top:16px;right:-2px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:8px 0 0 8px}
+
+  /* live activity */
+  .live-panel{margin-bottom:16px}
+  .live-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .live-head h3{font-size:15px;font-weight:700;display:flex;align-items:center;gap:9px;margin:0}
+  .live-badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--pink);
+    background:rgba(246,121,158,.14);border:1px solid rgba(246,121,158,.3);padding:4px 10px;border-radius:99px;margin-left:auto}
+  .live-badge .dot{background:var(--pink)}
+  .livewrap{display:grid;grid-template-columns:.85fr 2fr;gap:22px}
+  .live-count-box{background:linear-gradient(160deg,rgba(139,124,246,.16),rgba(246,121,158,.1));
+    border:1px solid rgba(139,124,246,.3);border-radius:16px;padding:20px;display:flex;flex-direction:column;justify-content:center}
+  .live-count{font-family:'Space Grotesk',sans-serif;font-size:52px;font-weight:700;line-height:1;letter-spacing:-2px;
+    background:linear-gradient(90deg,#C9BEFF,#F6A6C0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .live-count-lbl{font-size:13px;color:var(--muted);margin-top:8px}
+  .live-mini{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+  .live-mini .m-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted)}
+  .live-mini .m-bar{flex:1;height:6px;background:#221f45;border-radius:99px;overflow:hidden}
+  .live-mini .m-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .6s ease}
+  .live-mini .m-val{width:28px;text-align:right;font-variant-numeric:tabular-nums}
+  .feed{list-style:none;max-height:260px;overflow:hidden}
+  .feed li{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid rgba(38,35,74,.6);font-size:13.5px;
+    animation:slidein .5s ease}
+  @keyframes slidein{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+  .feed .fflag{font-size:17px;width:22px;text-align:center;flex:none}
+  .feed .ftxt{flex:1}
+  .feed .ftxt b{color:var(--text);font-weight:600}
+  .feed .ftxt span{color:var(--accent-2)}
+  .feed .ftime{font-size:11.5px;color:var(--muted);flex:none}
+  @media(max-width:700px){.livewrap{grid-template-columns:1fr}}
+
+  /* investor metrics */
+  .funnel{display:flex;flex-direction:column;gap:12px;margin-top:4px}
+  .fn-step .fn-bar{height:48px;border-radius:11px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 16px;color:#fff;font-size:13.5px;font-weight:600;width:0;min-width:158px;gap:10px;
+    white-space:nowrap;overflow:hidden;transition:width 1s cubic-bezier(.22,1,.36,1)}
+  .fn-step .fn-bar span:first-child{overflow:hidden;text-overflow:ellipsis}
+  .fn-step .fn-bar .n{font-family:'Space Grotesk',sans-serif;font-size:16px;flex:none}
+  .fn-conv{font-size:11.5px;color:var(--muted);margin-top:5px;padding-left:2px}
+  .uecon{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ucard{background:rgba(139,124,246,.07);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .ucard.hl{background:rgba(94,230,168,.1);border-color:rgba(94,230,168,.35)}
+  .ucard .ul{font-size:12px;color:var(--muted)}
+  .ucard .uv{font-size:24px;font-weight:700;font-family:'Space Grotesk',sans-serif;margin-top:6px;letter-spacing:-.5px}
+  .ucard.hl .uv{color:var(--green)}
+  .ucard .uh{font-size:11px;color:var(--muted);margin-top:3px}
+  .stick{display:flex;align-items:center;gap:22px}
+  .stick-big{font-size:52px;font-weight:700;font-family:'Space Grotesk',sans-serif;letter-spacing:-2px;line-height:1;
+    background:linear-gradient(90deg,#C9BEFF,#8ff0d6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stick-mini{flex:1;display:flex;flex-direction:column;gap:12px}
+  .sm-top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px}
+  .sm-bar{height:8px;background:#221f45;border-radius:99px;overflow:hidden}
+  .sm-fill{height:100%;border-radius:99px}
+  .est{font-size:11px;color:var(--muted);margin-top:12px;font-style:italic}
+
+  /* store ratings */
+  .stores{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .store-card{background:linear-gradient(180deg,rgba(24,21,54,.9),rgba(20,17,44,.9));border:1px solid var(--line);
+    border-radius:18px;padding:22px;backdrop-filter:blur(6px)}
+  .store-top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .store-logo{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none}
+  .store-name{font-weight:700;font-size:15px}
+  .store-sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .rating-row{display:flex;align-items:center;gap:18px}
+  .rating-big{font-size:44px;font-weight:700;font-family:'Space Grotesk',sans-serif;line-height:1;letter-spacing:-1px}
+  .rating-big.dim{color:var(--muted)}
+  .stars{display:flex;gap:3px;margin-bottom:6px}
+  .rating-meta{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .store-foot{margin-top:18px;border-top:1px solid var(--line);padding-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .store-note{font-size:12px;color:var(--muted)}
+  .store-btn{font-size:12.5px;font-weight:600;color:#fff;text-decoration:none;
+    background:linear-gradient(135deg,var(--accent),#6f5ff0);padding:9px 16px;border-radius:10px;
+    transition:transform .2s,box-shadow .2s;white-space:nowrap}
+  .store-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(139,124,246,.45)}
+  @media(max-width:700px){.stores{grid-template-columns:1fr}}
+
+  footer{margin-top:40px;text-align:center;font-size:12.5px;color:var(--muted)}
+  footer a{color:var(--accent-2);text-decoration:none}
+
+  .kpi,.card,.sale-card{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+  .kpi:hover,.card:hover,.sale-card:hover{transform:translateY(-3px);border-color:rgba(139,124,246,.5);box-shadow:0 14px 34px rgba(7,6,26,.6)}
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:1024px){.wrap{padding:24px 20px 56px}.banner{grid-template-columns:1fr 1fr}}
+  @media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}.grid,.sales{grid-template-columns:1fr}
+    .chart-box{height:230px}}
+  @media(max-width:560px){.kpis,.banner{grid-template-columns:1fr}.kpi .val{font-size:26px}.wrap{padding:20px 16px 48px}
+    .chart-box{height:210px}.uecon{grid-template-columns:1fr}
+    .banner .cell{border-left:none;border-top:1px solid rgba(255,255,255,.07)}
+    .banner .cell:first-child{border-top:none}
+    .stick-big{font-size:44px}.live-count{font-size:44px}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo">S</div>
+      <div>
+        <h1>Saylavy Analytics</h1>
+        <p>Digital Legacy App · Statistics Dashboard</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="chips">
+        <button class="chip">7d</button>
+        <button class="chip active">30d</button>
+        <button class="chip">All</button>
+      </div>
+      <span class="live"><span class="dot"></span> Live</span>
+    </div>
+  </header>
+
+  <p class="subtitle">Sign-ups, downloads, engagement, audience and sales at a glance. <em>Sample data for demonstration.</em></p>
+
+  <!-- KPIs -->
+  <section class="kpis">
+    <div class="kpi reveal">
+      <div class="top">
+        <div class="label"><span class="ico" style="background:rgba(139,124,246,.18)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </span> Total Sign-ups</div>
+      </div>
+      <div class="val" id="kpiSignups" data-target="968">0</div>
+      <div class="foot"><span class="delta up">▲ 12.4%</span>
+        <svg class="spark" viewBox="0 0 70 26" preserveAspectRatio="none"><polyline fill="none" stroke="#8B7CF6" stroke-width="2" points="0,22 12,18 24,15 36,11 48,9 60,5 70,3"/></svg></div>
+    </div>
+    <div class="kpi reveal">
+      <div class="top">
+        <div class="label"><span class="ico" style="background:rgba(79,216,196,.18)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4FD8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </span> App Downloads</div>
+      </div>
+      <div class="val" data-target="1842">0</div>
+      <div class="foot"><span class="delta up">▲ Goal reached</span>
+        <svg class="spark" viewBox="0 0 70 26" preserveAspectRatio="none"><polyline fill="none" stroke="#4FD8C4" stroke-width="2" points="0,20 12,21 24,16 36,14 48,10 60,7 70,6"/></svg></div>
+    </div>
+    <div class="kpi reveal">
+      <div class="top">
+        <div class="label"><span class="ico" style="background:rgba(245,184,81,.18)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5B851" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+        </span> Ad Spend</div>
+      </div>
+      <div class="val" data-prefix="$" data-target="100">0</div>
+      <div class="foot"><span class="delta neutral">this month</span>
+        <svg class="spark" viewBox="0 0 70 26" preserveAspectRatio="none"><polyline fill="none" stroke="#F5B851" stroke-width="2" points="0,14 12,15 24,13 36,14 48,12 60,13 70,12"/></svg></div>
+    </div>
+    <div class="kpi reveal">
+      <div class="top">
+        <div class="label"><span class="ico" style="background:rgba(94,230,168,.18)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </span> Revenue</div>
+      </div>
+      <div class="val" data-prefix="$" data-target="230">0</div>
+      <div class="foot"><span class="delta up">▲ 14 sales</span>
+        <svg class="spark" viewBox="0 0 70 26" preserveAspectRatio="none"><polyline fill="none" stroke="#5EE6A8" stroke-width="2" points="0,23 12,20 24,19 36,13 48,12 60,7 70,4"/></svg></div>
+    </div>
+  </section>
+
+  <!-- Profit banner -->
+  <section class="banner reveal">
+    <div class="cell">
+      <div class="b-label">Return on ad spend</div>
+      <div class="b-val pos" data-prefix="$" data-target="2.30">0</div>
+      <span class="roi-pill">per $1 spent · proven on a $100 test budget — ready to scale</span>
+    </div>
+    <div class="cell">
+      <div class="b-label">LTV : CAC ratio</div>
+      <div class="b-val" data-suffix="×" data-target="3.1">0</div>
+    </div>
+    <div class="cell">
+      <div class="b-label">Signup rate</div>
+      <div class="b-val" data-suffix="%" data-target="52.6">0</div>
+    </div>
+    <div class="cell">
+      <div class="b-label">Cost per install</div>
+      <div class="b-val" data-prefix="$" data-target="0.05">0</div>
+    </div>
+  </section>
+
+  <!-- Live activity -->
+  <section class="card live-panel reveal">
+    <div class="live-head">
+      <h3><span class="ico" style="width:32px;height:32px;background:rgba(246,121,158,.18)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F6799E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </span> Live activity</h3>
+      <span class="live-badge"><span class="dot"></span> Real-time</span>
+    </div>
+    <div class="livewrap">
+      <div class="live-count-box">
+        <div class="live-count" id="liveCount">0</div>
+        <div class="live-count-lbl">users in the app right now</div>
+        <div class="live-mini" id="liveMini"></div>
+      </div>
+      <ul class="feed" id="feed"></ul>
+    </div>
+  </section>
+
+  <!-- Signups + downloads goal -->
+  <section class="grid">
+    <div class="card reveal">
+      <h3>Sign-ups over time</h3>
+      <div class="hint" id="signHint">Daily new users · last 30 days</div>
+      <div class="chart-box"><canvas id="signupsChart"></canvas></div>
+    </div>
+    <div class="card reveal">
+      <h3>Downloads vs goal</h3>
+      <div class="hint">Target: 1,500 – 2,000 downloads</div>
+      <div class="goal-num" data-target="1842">0</div>
+      <div class="goal-sub">of 2,000 target</div>
+      <div class="track"><span class="fill" data-w="92"></span>
+        <span class="zone" style="left:75%"></span><span class="zone" style="left:100%"></span></div>
+      <div class="goal-legend"><span>0</span><span>1,500</span><span>2,000</span></div>
+      <div class="goal-tag">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5EE6A8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Goal reached — push for 2,000</div>
+    </div>
+  </section>
+
+  <!-- Clicks + locations -->
+  <section class="grid">
+    <div class="card reveal">
+      <h3>What users are clicking</h3>
+      <div class="hint" id="clickHint">Engagement by app section · last 30 days</div>
+      <div class="chart-box"><canvas id="clicksChart"></canvas></div>
+    </div>
+    <div class="card reveal">
+      <h3>Top user locations</h3>
+      <div class="hint">Share of active users by country</div>
+      <div id="locations" style="margin-top:6px"></div>
+    </div>
+  </section>
+
+  <!-- Investor metrics -->
+  <div class="sales-head reveal">
+    <span class="ico" style="width:34px;height:34px;background:rgba(94,230,168,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    </span>
+    <h2>Investor metrics</h2><span>Growth · funnel · unit economics · retention</span>
+  </div>
+
+  <section style="margin-bottom:16px">
+    <div class="card reveal">
+      <h3>Growth &amp; projection</h3>
+      <div class="hint">Cumulative downloads — solid = actual, dashed = projected next 30 days</div>
+      <div class="chart-box" style="height:280px"><canvas id="growthChart"></canvas></div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="card reveal">
+      <h3>Conversion funnel</h3><div class="hint">From install to paying customer</div>
+      <div class="funnel" id="funnel"></div>
+    </div>
+    <div class="card reveal">
+      <h3>Unit economics</h3><div class="hint">Per-customer efficiency</div>
+      <div class="uecon">
+        <div class="ucard"><div class="ul">ROAS</div><div class="uv">2.3×</div><div class="uh">$2.30 back per $1 ad</div></div>
+        <div class="ucard"><div class="ul">CAC</div><div class="uv">$7.14</div><div class="uh">per paying customer</div></div>
+        <div class="ucard hl"><div class="ul">LTV : CAC</div><div class="uv">3.1×</div><div class="uh">healthy is &gt; 3×</div></div>
+        <div class="ucard"><div class="ul">ARPPU</div><div class="uv">$16.43</div><div class="uh">revenue per paying user</div></div>
+      </div>
+      <div class="est">CAC = $100 ad ÷ 14 customers · LTV estimated at $22</div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="card reveal">
+      <h3>Retention</h3><div class="hint">% of users still active after install</div>
+      <div class="chart-box" style="height:220px"><canvas id="retentionChart"></canvas></div>
+    </div>
+    <div class="card reveal">
+      <h3>Stickiness · DAU / MAU</h3><div class="hint">Daily actives ÷ monthly actives</div>
+      <div class="stick" style="margin-top:8px">
+        <div class="stick-big">31%</div>
+        <div class="stick-mini">
+          <div><div class="sm-top"><span>DAU</span><span>198</span></div><div class="sm-bar"><span class="sm-fill" style="width:31%;background:linear-gradient(90deg,#4FD8C4,#5EE6A8)"></span></div></div>
+          <div><div class="sm-top"><span>MAU</span><span>640</span></div><div class="sm-bar"><span class="sm-fill" style="width:100%;background:linear-gradient(90deg,#8B7CF6,#B79CFF)"></span></div></div>
+        </div>
+      </div>
+      <div class="est">Above 20% is considered strong for consumer apps</div>
+    </div>
+  </section>
+
+  <!-- Sales -->
+  <div class="sales-head reveal">
+    <span class="ico" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+    </span>
+    <h2>Sales</h2><span>Products sold to date</span>
+  </div>
+  <section class="sales">
+    <div class="sale-card reveal">
+      <span class="ribbon">Best seller</span>
+      <div class="sale-ico" style="background:rgba(139,124,246,.18)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+      <div class="big" data-target="10">0</div>
+      <div class="name">Memory Pages sold</div>
+      <div class="rev">Revenue <b>$50</b> · $5 each</div>
+    </div>
+    <div class="sale-card reveal">
+      <div class="sale-ico" style="background:rgba(246,121,158,.18)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F6799E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
+      <div class="big" data-target="4">0</div>
+      <div class="name">3D Prints sold</div>
+      <div class="rev">Revenue <b>$180</b> · $45 each</div>
+    </div>
+    <div class="card reveal" style="padding:22px">
+      <h3>Sales split</h3>
+      <div class="hint">Units by product</div>
+      <div class="dough-wrap chart-sm" style="height:190px;max-width:210px;margin:0 auto">
+        <canvas id="salesChart"></canvas>
+        <div class="center-num">14</div><div class="center-lbl">total sales</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Store ratings & reviews -->
+  <div class="sales-head reveal">
+    <span class="ico" style="width:34px;height:34px;background:rgba(79,216,196,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4FD8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </span>
+    <h2>Store downloads</h2><span>App Store &amp; Google Play</span>
+  </div>
+  <section class="stores">
+    <!-- App Store -->
+    <div class="store-card reveal">
+      <div class="store-top">
+        <span class="store-logo" style="background:rgba(255,255,255,.08)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#F4F3FB"><path d="M16.36 12.35c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.75 2.28-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.43-3.66zM14.13 5.6c.64-.77 1.07-1.85.95-2.92-.92.04-2.03.61-2.69 1.38-.59.68-1.11 1.77-.97 2.82 1.03.08 2.07-.52 2.71-1.28z"/></svg>
+        </span>
+        <div><div class="store-name">App Store</div><div class="store-sub">Lifestyle · Rated 16+ · iOS 15.1+</div></div>
+      </div>
+      <div class="rating-row">
+        <div class="rating-big dim" style="font-size:30px">iOS</div>
+        <div>
+          <div class="rating-meta"><b style="color:var(--text)">Downloads not public</b><br>Apple doesn't disclose install counts</div>
+        </div>
+      </div>
+      <div class="store-foot">
+        <span class="store-note">Version 1.0.4 · updated Jun 16</span>
+        <a class="store-btn" href="https://apps.apple.com/ca/app/saylavy/id6759291305" target="_blank" rel="noopener">View on App Store</a>
+      </div>
+    </div>
+    <!-- Google Play -->
+    <div class="store-card reveal">
+      <div class="store-top">
+        <span class="store-logo" style="background:rgba(255,255,255,.08)">
+          <svg width="22" height="22" viewBox="0 0 24 24"><path d="M3.6 2.3c-.3.2-.5.6-.5 1.1v17.2c0 .5.2.9.5 1.1l.1.1L13 12.1v-.2L3.7 2.2l-.1.1z" fill="#4FD8C4"/><path d="M16.2 15.3L13 12.1v-.2l3.2-3.2.1.1 3.8 2.2c1.1.6 1.1 1.6 0 2.2l-3.8 2.1z" fill="#F5B851"/><path d="M16.3 15.2L13 12 3.6 21.7c.4.4 1 .4 1.6.1l11.1-6.6z" fill="#F6799E"/><path d="M16.3 8.8L5.2 2.2c-.6-.3-1.2-.3-1.6.1L13 12l3.3-3.2z" fill="#8B7CF6"/></svg>
+        </span>
+        <div><div class="store-name">Google Play</div><div class="store-sub">Social · Every Ending LLC · Rated 12+</div></div>
+      </div>
+      <div class="rating-row">
+        <div class="rating-big">10+</div>
+        <div>
+          <div class="rating-meta"><b style="color:var(--text)">downloads</b><br>on Google Play<br>as listed on the store</div>
+        </div>
+      </div>
+      <div class="store-foot">
+        <span class="store-note">Updated Jun 15, 2026</span>
+        <a class="store-btn" href="https://play.google.com/store/apps/details?id=com.saylavy.app&hl=en_CA" target="_blank" rel="noopener">View on Google Play</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>Saylavy Analytics · <a href="https://saylavy.com" target="_blank">saylavy.com</a> · Sample data dashboard</footer>
+</div>
+
+<script>
+const AX='#9B98C4',GRID='rgba(38,35,74,.7)',FONT="'Inter',sans-serif";
+Chart.defaults.color=AX;Chart.defaults.font.family=FONT;Chart.defaults.font.size=12;
+Chart.defaults.responsive=true;Chart.defaults.maintainAspectRatio=false;  /* fill card width+height */
+Chart.defaults.plugins.tooltip.backgroundColor='#1A1838';
+Chart.defaults.plugins.tooltip.borderColor='#3a3568';Chart.defaults.plugins.tooltip.borderWidth=1;
+Chart.defaults.plugins.tooltip.padding=10;Chart.defaults.plugins.tooltip.cornerRadius=8;
+const grad=(ctx,c1,c2)=>{const g=ctx.createLinearGradient(0,0,0,260);g.addColorStop(0,c1);g.addColorStop(1,c2);return g;};
+
+/* ---- daily dataset: rolling window ending today ---- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const rnd=mulberry32(20260715);
+const DAYS=90, secW=[38,23,18,13,8], today=new Date();
+const day=[];
+for(let i=0;i<DAYS;i++){
+  const t=i/(DAYS-1);
+  const d=new Date(today); d.setDate(today.getDate()-(DAYS-1-i));
+  day.push({label:d.toLocaleDateString('en-US',{month:'short',day:'numeric'}),
+    signups:(3+34*t)*(0.75+0.5*rnd()), clicksTotal:(28+64*t)*(0.75+0.5*rnd())});
+}
+/* scale so the last 30 days match headline numbers (968 signups, 2,240 clicks) */
+function scale30(key,target){const s=day.slice(-30).reduce((a,b)=>a+b[key],0),f=target/s;day.forEach(o=>o[key]*=f);}
+scale30('signups',968); scale30('clicksTotal',2240);
+day.forEach(o=>{o.signups=Math.max(1,Math.round(o.signups));o.clicks=secW.map(w=>Math.round(o.clicksTotal*w/100));});
+
+const winDays=(p)=>p==='all'?day:day.slice(-p);
+let signupsChart, clicksChart;
+function buildSignups(p){
+  const w=winDays(p);
+  const data={labels:w.map(o=>o.label),datasets:[{label:'Sign-ups',data:w.map(o=>o.signups),
+    borderColor:'#8B7CF6',borderWidth:3,tension:.4,fill:true,pointRadius:p===7?4:0,pointHoverRadius:5,
+    pointBackgroundColor:'#B79CFF',backgroundColor:(c)=>grad(c.chart.ctx,'rgba(139,124,246,.4)','rgba(139,124,246,0)')}]};
+  if(signupsChart){signupsChart.data=data;signupsChart.update();}
+  else signupsChart=new Chart(document.getElementById('signupsChart'),{type:'line',data,
+    options:{animation:{duration:900},plugins:{legend:{display:false}},
+      scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,autoSkip:true,maxRotation:0}},y:{grid:{color:GRID},beginAtZero:true}}}});
+}
+function buildClicks(p){
+  const w=winDays(p), totals=secW.map((_,si)=>w.reduce((a,o)=>a+o.clicks[si],0));
+  const data={labels:['Memory Pages','Time Capsules','Proof of Life','Funeral Planning','Memory Print'],
+    datasets:[{label:'Clicks',data:totals,backgroundColor:(c)=>grad(c.chart.ctx,'#C4A9FF','#7B67E8'),borderRadius:8,maxBarThickness:70,categoryPercentage:0.72,barPercentage:0.9}]};
+  if(clicksChart){clicksChart.data=data;clicksChart.update();}
+  else clicksChart=new Chart(document.getElementById('clicksChart'),{type:'bar',data,
+    options:{animation:{duration:900},plugins:{legend:{display:false}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:GRID},beginAtZero:true}}}});
+}
+function setPeriod(p){
+  buildSignups(p); buildClicks(p);
+  const w=winDays(p), lbl=(p==='all'?'all time':'last '+p+' days');
+  const signEl=document.getElementById('kpiSignups');
+  signEl.dataset.target=String(w.reduce((a,o)=>a+o.signups,0)); countUp(signEl);
+  document.getElementById('signHint').textContent='Daily new users · '+lbl;
+  document.getElementById('clickHint').textContent='Engagement by app section · '+lbl;
+}
+
+const salesChart=new Chart(document.getElementById('salesChart'),{
+  type:'doughnut',
+  data:{labels:['Memory Pages','3D Prints'],
+    datasets:[{data:[10,4],backgroundColor:['#8B7CF6','#F6799E'],borderColor:'#12102E',borderWidth:4,hoverOffset:8}]},
+  options:{cutout:'64%',maintainAspectRatio:false,animation:{animateRotate:true,duration:1100},
+    plugins:{legend:{position:'bottom',labels:{padding:14,usePointStyle:true}}}}
+});
+
+const locs=[
+  {f:'🇨🇦',n:'Canada',p:88},{f:'🇺🇸',n:'United States',p:2},
+  {f:'🇪🇺',n:'Europe',p:6},{f:'🇷🇺',n:'Russia',p:3},{f:'🌍',n:'Other',p:1},
+];
+const locMax=Math.max(...locs.map(l=>l.p));
+document.getElementById('locations').innerHTML=locs.map(l=>`
+  <div class="loc-row"><span class="flag">${l.f}</span><span class="name">${l.n}</span>
+    <span class="bar"><span class="fill" data-w="${Math.max(l.p/locMax*100,4)}"></span></span>
+    <span class="pct">${l.p}%</span></div>`).join('');
+
+/* count-up */
+function countUp(el){
+  const t=parseFloat(el.dataset.target), dec=(el.dataset.target.split('.')[1]||'').length;
+  const pre=el.dataset.prefix||'', suf=el.dataset.suffix||'', plus=el.dataset.plus?'+':'';
+  const dur=1200, t0=performance.now();
+  const fmt=(n)=>plus+pre+n.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})+suf;
+  (function step(now){
+    const k=Math.min((now-t0)/dur,1), e=1-Math.pow(1-k,3);
+    el.textContent=fmt(t*e); if(k<1)requestAnimationFrame(step); else el.textContent=fmt(t);
+  })(t0);
+}
+/* reveal + trigger animations on scroll-in */
+function revealEl(el){
+  if(el.classList.contains('in'))return;
+  el.classList.add('in');
+  el.querySelectorAll('[data-target]').forEach(countUp);
+  el.querySelectorAll('.fill[data-w]').forEach(f=>f.style.width=f.dataset.w+'%');
+}
+const io=new IntersectionObserver((es)=>{es.forEach(en=>{
+  if(!en.isIntersecting)return; revealEl(en.target); io.unobserve(en.target);
+})},{threshold:0.02});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+/* safety net: never let a card stay invisible */
+setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(revealEl),1800);
+/* locations aren't inside .reveal — animate their bars too */
+setTimeout(()=>document.querySelectorAll('#locations .fill[data-w]').forEach(f=>f.style.width=f.dataset.w+'%'),300);
+
+/* ---- Investor: conversion funnel ---- */
+const fsteps=[
+  {n:'App Downloads',v:1842,w:100,c:'linear-gradient(90deg,#8B7CF6,#B79CFF)',note:'100% — top of funnel'},
+  {n:'Sign-ups',v:968,w:70,c:'linear-gradient(90deg,#7B67E8,#9d86ff)',note:'52.6% of downloads registered'},
+  {n:'Engaged users',v:612,w:47,c:'linear-gradient(90deg,#6f5ff0,#8B7CF6)',note:'63% of sign-ups opened a feature'},
+  {n:'Paying customers',v:14,w:24,c:'linear-gradient(90deg,#F6799E,#f5a06e)',note:'1.4% of sign-ups converted to paid'},
+];
+document.getElementById('funnel').innerHTML=fsteps.map(s=>`
+  <div class="fn-step">
+    <div class="fn-bar" data-w="${s.w}" style="background:${s.c}"><span>${s.n}</span><span class="n">${s.v.toLocaleString()}</span></div>
+    <div class="fn-conv">${s.note}</div></div>`).join('');
+setTimeout(()=>document.querySelectorAll('#funnel .fn-bar').forEach(b=>b.style.width=b.dataset.w+'%'),250);
+
+/* ---- Investor: growth & projection ---- */
+const rndG=mulberry32(77), GD=90, PROJ=30, t0=new Date();
+let inc=[], labelsG=[];
+for(let i=0;i<GD;i++){const t=i/(GD-1);inc.push((6+28*t)*(0.6+0.7*rndG()));
+  const d=new Date(t0);d.setDate(t0.getDate()-(GD-1-i));labelsG.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));}
+const sInc=1842/inc.reduce((a,b)=>a+b,0); inc=inc.map(x=>x*sInc);
+let cum=[],run=0; inc.forEach(x=>{run+=x;cum.push(Math.round(run));});
+const rate=inc.slice(-14).reduce((a,b)=>a+b,0)/14;
+let pj=Array(GD).fill(null); pj[GD-1]=cum[GD-1]; let pr=cum[GD-1];
+for(let i=0;i<PROJ;i++){pr+=rate*(1+i*0.006);const d=new Date(t0);d.setDate(t0.getDate()+i+1);
+  labelsG.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));pj.push(Math.round(pr));}
+const actual=[...cum,...Array(PROJ).fill(null)];
+const growthChart=new Chart(document.getElementById('growthChart'),{type:'line',
+  data:{labels:labelsG,datasets:[
+    {label:'Actual',data:actual,borderColor:'#8B7CF6',borderWidth:3,tension:.35,pointRadius:0,fill:true,
+      backgroundColor:(c)=>grad(c.chart.ctx,'rgba(139,124,246,.35)','rgba(139,124,246,0)')},
+    {label:'Projected',data:pj,borderColor:'#5EE6A8',borderWidth:2.5,borderDash:[6,6],tension:.35,pointRadius:0,fill:false}
+  ]},
+  options:{animation:{duration:1100},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}}},
+    scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,autoSkip:true,maxRotation:0}},y:{grid:{color:GRID},beginAtZero:true}}}
+});
+
+/* ---- Investor: retention curve ---- */
+const retentionChart=new Chart(document.getElementById('retentionChart'),{type:'bar',
+  data:{labels:['Day 1','Day 7','Day 30'],datasets:[{label:'Retention',data:[48,29,18],
+    backgroundColor:(c)=>grad(c.chart.ctx,'#5EE6A8','#3aa9c9'),borderRadius:8,maxBarThickness:110,categoryPercentage:0.7,barPercentage:0.85}]},
+  options:{animation:{duration:1000,delay:(c)=>c.dataIndex*120},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:(x)=>x.parsed.y+'% still active'}}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:GRID},beginAtZero:true,max:60,ticks:{callback:v=>v+'%'}}}}
+});
+
+/* chips: switch period (7d / 30d / All) */
+const periodMap={'7d':7,'30d':30,'All':'all'};
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');
+  setPeriod(periodMap[c.textContent.trim()]);}));
+setPeriod(30);  /* initial render */
+
+/* force every chart to re-measure its container after layout + fonts settle
+   (prevents charts locking a too-narrow width and leaving empty space) */
+function resizeAllCharts(){
+  [signupsChart,clicksChart,salesChart,growthChart,retentionChart].forEach(c=>{try{c&&c.resize();}catch(e){}});
+}
+window.addEventListener('load',resizeAllCharts);
+window.addEventListener('resize',resizeAllCharts);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(resizeAllCharts);
+setTimeout(resizeAllCharts,300);
+setTimeout(resizeAllCharts,1000);
+
+/* ---- Live activity (simulated real-time) ---- */
+const sections=['Memory Pages','Time Capsules','Proof of Life','Funeral Planning','Memory Print'];
+const secWeights=[38,23,18,13,8];
+const geo=[['🇨🇦','Canada',88],['🇪🇺','Europe',6],['🇷🇺','Russia',3],['🇺🇸','United States',2],['🌍','Elsewhere',1]];
+const actions=['opened','is viewing','tapped','scrolled through','shared'];
+function weighted(items,weights){const s=weights.reduce((a,b)=>a+b,0);let r=Math.random()*s;
+  for(let i=0;i<items.length;i++){r-=weights[i];if(r<=0)return items[i];}return items[items.length-1];}
+
+/* live user count fluctuates gently */
+let live=17;
+const liveEl=document.getElementById('liveCount');
+const paintLive=()=>liveEl.textContent=live;
+paintLive();
+setInterval(()=>{live=Math.max(8,Math.min(29,live+Math.round((Math.random()-.5)*3)));paintLive();},25000);
+
+/* mini "active by section (last 3h)" */
+const miniEl=document.getElementById('liveMini');
+function paintMini(){
+  const base=[9,6,4,3,2].map(v=>Math.max(1,v+Math.round((Math.random()-.5)*2)));
+  const mx=Math.max(...base);
+  miniEl.innerHTML=sections.map((s,i)=>`
+    <div class="m-row"><span style="width:104px">${s}</span>
+      <span class="m-bar"><span class="m-fill" style="width:${base[i]/mx*100}%"></span></span>
+      <span class="m-val">${base[i]}</span></div>`).join('');
+}
+paintMini();setInterval(paintMini,45000);
+
+/* streaming feed — events spread across the last ~3 hours */
+const feedEl=document.getElementById('feed');
+const MAX_ITEMS=6;
+function relTime(ms){
+  const s=Math.floor((Date.now()-ms)/1000);
+  if(s<45)return'just now';
+  const m=Math.floor(s/60);
+  if(m<60)return m+'m ago';
+  const h=Math.floor(m/60), rm=m%60;
+  return rm?`${h}h ${rm}m ago`:`${h}h ago`;
+}
+function makeEvent(atMs){
+  const g=weighted(geo,geo.map(x=>x[2]));
+  const sec=weighted(sections,secWeights);
+  const act=actions[Math.floor(Math.random()*actions.length)];
+  return{ms:atMs,html:`<span class="fflag">${g[0]}</span>
+    <span class="ftxt"><b>A user in ${g[1]}</b> ${act} <span>${sec}</span></span>
+    <span class="ftime"></span>`};
+}
+let events=[];
+/* seed 6 events with irregular gaps across the past several hours, newest first */
+(function seed(){
+  let t=Date.now()-(5+Math.random()*12)*60*1000;   // most recent 5–17 min ago
+  for(let i=0;i<MAX_ITEMS;i++){
+    events.push(makeEvent(t));
+    t-=(30+Math.random()*170)*60*1000;             // step back 30 min – 3h20 (irregular)
+  }
+})();
+function render(){
+  feedEl.innerHTML=events.map(e=>`<li>${e.html}</li>`).join('');
+  [...feedEl.children].forEach((li,i)=>li.querySelector('.ftime').textContent=relTime(events[i].ms));
+}
+render();
+setInterval(render,30000);                    // refresh relative times
+/* new event trickles in at an irregular 4–13 min interval */
+(function schedule(){
+  setTimeout(()=>{
+    events.unshift(makeEvent(Date.now()-Math.floor(Math.random()*7*60)*1000));  // 0–7 min old
+    if(events.length>MAX_ITEMS)events.pop();
+    render();schedule();
+  },(240+Math.random()*540)*1000);
+})();
+</script>
+</body>
+</html>
