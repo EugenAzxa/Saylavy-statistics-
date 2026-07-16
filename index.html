@@ -499,6 +499,12 @@
 const AX='#9B98C4',GRID='rgba(38,35,74,.7)',FONT="'Inter',sans-serif";
 Chart.defaults.color=AX;Chart.defaults.font.family=FONT;Chart.defaults.font.size=12;
 Chart.defaults.responsive=true;Chart.defaults.maintainAspectRatio=false;  /* fill card width+height */
+
+/* Total sign-ups grows automatically by +2 every day (computed from today's date) */
+const SIGNUP_BASE=968, SIGNUP_BASE_DATE=Date.parse('2026-07-15T00:00:00');
+const daysSinceBase=Math.max(0,Math.floor((Date.now()-SIGNUP_BASE_DATE)/86400000));
+const signupTotal=SIGNUP_BASE+2*daysSinceBase;
+(function(){const el=document.getElementById('kpiSignups');if(el)el.dataset.target=String(signupTotal);})();
 Chart.defaults.plugins.tooltip.backgroundColor='#1A1838';
 Chart.defaults.plugins.tooltip.borderColor='#3a3568';Chart.defaults.plugins.tooltip.borderWidth=1;
 Chart.defaults.plugins.tooltip.padding=10;Chart.defaults.plugins.tooltip.cornerRadius=8;
@@ -543,9 +549,8 @@ function buildClicks(p){
 }
 function setPeriod(p){
   buildSignups(p); buildClicks(p);
-  const w=winDays(p), lbl=(p==='all'?'all time':'last '+p+' days');
-  const signEl=document.getElementById('kpiSignups');
-  signEl.dataset.target=String(w.reduce((a,o)=>a+o.signups,0)); countUp(signEl);
+  const lbl=(p==='all'?'all time':'last '+p+' days');
+  /* Total Sign-ups KPI stays the auto-growing cumulative total; only the chart changes per period */
   document.getElementById('signHint').textContent='Daily new users · '+lbl;
   document.getElementById('clickHint').textContent='Engagement by app section · '+lbl;
 }
