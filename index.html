@@ -363,6 +363,26 @@
     </div>
   </section>
 
+  <!-- Website engagement -->
+  <div class="sales-head reveal">
+    <span class="ico" style="width:34px;height:34px;background:rgba(79,216,196,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4FD8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    </span>
+    <h2>Website engagement</h2><span>What visitors do on saylavy.com</span>
+  </div>
+  <section class="grid">
+    <div class="card reveal">
+      <h3>What visitors click on the website</h3>
+      <div class="hint">Clicks by page &amp; button · last 30 days</div>
+      <div class="chart-box"><canvas id="webClicksChart"></canvas></div>
+    </div>
+    <div class="card reveal">
+      <h3>Top pages visited</h3>
+      <div class="hint">Share of website page views</div>
+      <div id="webPages" style="margin-top:6px"></div>
+    </div>
+  </section>
+
   <!-- Investor metrics -->
   <div class="sales-head reveal">
     <span class="ico" style="width:34px;height:34px;background:rgba(94,230,168,.18)">
@@ -609,6 +629,25 @@ setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(revealEl),1
 /* locations aren't inside .reveal — animate their bars too */
 setTimeout(()=>document.querySelectorAll('#locations .fill[data-w]').forEach(f=>f.style.width=f.dataset.w+'%'),300);
 
+/* ---- Website engagement: clicks by page/button ---- */
+const webClicksChart=new Chart(document.getElementById('webClicksChart'),{type:'bar',
+  data:{labels:['Get the App','Memory Page','Memory Print','About','Contact'],
+    datasets:[{label:'Clicks',data:[1240,880,560,340,190],
+      backgroundColor:(c)=>grad(c.chart.ctx,'#7FE9D6','#3fb8c9'),borderRadius:8,maxBarThickness:70,categoryPercentage:0.72,barPercentage:0.9}]},
+  options:{animation:{duration:900},plugins:{legend:{display:false}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:GRID},beginAtZero:true}}}
+});
+/* ---- Website engagement: top pages ---- */
+const webPages=[
+  {n:'Home',p:44},{n:'Memory Page',p:22},{n:'Memory Print',p:14},{n:'About',p:12},{n:'Contact',p:8},
+];
+const wpMax=Math.max(...webPages.map(p=>p.p));
+document.getElementById('webPages').innerHTML=webPages.map(p=>`
+  <div class="loc-row"><span class="name" style="width:130px">${p.n}</span>
+    <span class="bar"><span class="fill" data-w="${Math.max(p.p/wpMax*100,4)}"></span></span>
+    <span class="pct">${p.p}%</span></div>`).join('');
+setTimeout(()=>document.querySelectorAll('#webPages .fill[data-w]').forEach(f=>f.style.width=f.dataset.w+'%'),300);
+
 /* ---- Investor: conversion funnel ---- */
 const fsteps=[
   {n:'App Downloads',v:1842,w:100,c:'linear-gradient(90deg,#8B7CF6,#B79CFF)',note:'100% — top of funnel'},
@@ -663,7 +702,7 @@ setPeriod(30);  /* initial render */
 /* force every chart to re-measure its container after layout + fonts settle
    (prevents charts locking a too-narrow width and leaving empty space) */
 function resizeAllCharts(){
-  [signupsChart,clicksChart,salesChart,growthChart,retentionChart].forEach(c=>{try{c&&c.resize();}catch(e){}});
+  [signupsChart,clicksChart,salesChart,growthChart,retentionChart,webClicksChart].forEach(c=>{try{c&&c.resize();}catch(e){}});
 }
 window.addEventListener('load',resizeAllCharts);
 window.addEventListener('resize',resizeAllCharts);
