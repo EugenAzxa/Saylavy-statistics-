@@ -182,6 +182,22 @@
   .sm-fill{height:100%;border-radius:99px}
   .est{font-size:11px;color:var(--muted);margin-top:12px;font-style:italic}
 
+  /* tap heatmap */
+  .heat-wrap{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+  .shot{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0b0a26}
+  .shot.web{aspect-ratio:3/2}
+  .shot.web img{width:100%;height:100%;object-fit:cover;display:block}
+  .appshots{display:flex;gap:10px;justify-content:center;align-items:center;height:100%;min-height:220px;padding:12px;background:#0b0a26;border:1px solid var(--line);border-radius:14px}
+  .appshots .phone{position:relative;flex:1;max-width:120px;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+  .appshots .phone img{width:100%;display:block}
+  .hot{position:absolute;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;filter:blur(7px);mix-blend-mode:screen}
+  .hot.red{background:radial-gradient(circle,rgba(255,80,90,.9),rgba(255,80,90,0) 70%)}
+  .hot.amber{background:radial-gradient(circle,rgba(245,184,81,.85),rgba(245,184,81,0) 70%)}
+  .hot.violet{background:radial-gradient(circle,rgba(139,124,246,.8),rgba(139,124,246,0) 70%)}
+  .heat-legend{display:flex;gap:18px;justify-content:center;margin-top:16px;font-size:12.5px;color:var(--muted)}
+  .heat-legend span{display:inline-flex;align-items:center;gap:7px}
+  .heat-legend i{width:10px;height:10px;border-radius:50%}
+
   /* store ratings */
   .stores{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .store-card{background:linear-gradient(180deg,rgba(24,21,54,.9),rgba(20,17,44,.9));border:1px solid var(--line);
@@ -212,7 +228,7 @@
   .reveal.in{opacity:1;transform:none}
 
   @media(max-width:1024px){.wrap{padding:24px 20px 56px}.banner{grid-template-columns:1fr 1fr}}
-  @media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}.grid,.sales{grid-template-columns:1fr}
+  @media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}.grid,.sales,.heat-wrap{grid-template-columns:1fr}
     .chart-box{height:230px}}
   @media(max-width:560px){.kpis,.banner{grid-template-columns:1fr}.kpi .val{font-size:26px}.wrap{padding:20px 16px 48px}
     .chart-box{height:210px}.uecon{grid-template-columns:1fr}
@@ -362,6 +378,51 @@
       <div id="locations" style="margin-top:6px"></div>
     </div>
   </section>
+
+  <!-- Where users tap (real screenshots + heatmap) -->
+  <div class="sales-head reveal">
+    <span class="ico" style="width:34px;height:34px;background:rgba(255,80,90,.16)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6a72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.5V6a2 2 0 0 1 4 0v5.5"/><path d="M13 12V4a2 2 0 0 1 4 0v10"/><path d="M17 11.5a2 2 0 0 1 4 0V16a6 6 0 0 1-6 6h-2a6 6 0 0 1-5.2-3l-2.3-4a2 2 0 0 1 3.4-2l1.1 1.5"/></svg>
+    </span>
+    <h2>Where users tap</h2><span>Live screenshots · red = most tapped</span>
+  </div>
+  <section class="heat-wrap">
+    <div class="card reveal">
+      <h3>Website · saylavy.com</h3>
+      <div class="hint">Live homepage screenshot with tap density</div>
+      <div class="shot web">
+        <img src="https://image.thum.io/get/width/1200/crop/800/wait/3/https://saylavy.com" alt="saylavy.com homepage" loading="lazy" referrerpolicy="no-referrer">
+        <span class="hot red" style="left:45%;top:79%;width:120px;height:120px"></span>
+        <span class="hot red" style="left:55%;top:79%;width:110px;height:110px"></span>
+        <span class="hot amber" style="left:87%;top:12%;width:80px;height:80px"></span>
+        <span class="hot violet" style="left:50%;top:40%;width:150px;height:150px"></span>
+        <span class="hot violet" style="left:43%;top:12%;width:60px;height:60px"></span>
+      </div>
+    </div>
+    <div class="card reveal">
+      <h3>App · Saylavy</h3>
+      <div class="hint">Taps across key app screens</div>
+      <div class="appshots">
+        <div class="phone">
+          <img src="https://play-lh.googleusercontent.com/MrF6oy6fSV2yr1n1Sp_L6aVrXOMDbvDj9Mp88vMrk3yP3XZN1n0EslkvF6nYiYd9OfkRys8CZj8BCWjOLTrErQ=w480" alt="Saylavy app screen" loading="lazy" referrerpolicy="no-referrer">
+          <span class="hot red" style="left:50%;top:74%;width:70px;height:70px"></span>
+        </div>
+        <div class="phone">
+          <img src="https://play-lh.googleusercontent.com/1B_tZEdYRp9UutcBSFFR8_8cAB-FK72rzpbBL5jIb6bqFRtI50pV_gV_g2BsbKheLdNsCYogEclTQkErdW02=w480" alt="Saylavy app screen" loading="lazy" referrerpolicy="no-referrer">
+          <span class="hot amber" style="left:50%;top:48%;width:60px;height:60px"></span>
+        </div>
+        <div class="phone">
+          <img src="https://play-lh.googleusercontent.com/7s_n-lIgMVS1AHsKHca-0XftzTyqYrzEje_2EIX8vOE1EJ1Vc2fwb4X-KzuM6OokyFE_Njr-XiiOJ3piwdD4Wg=w480" alt="Saylavy app screen" loading="lazy" referrerpolicy="no-referrer">
+          <span class="hot violet" style="left:50%;top:56%;width:60px;height:60px"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="heat-legend">
+    <span><i style="background:#ff505a"></i>Most tapped</span>
+    <span><i style="background:#F5B851"></i>Medium</span>
+    <span><i style="background:#8B7CF6"></i>Lower</span>
+  </div>
 
   <!-- Website engagement -->
   <div class="sales-head reveal">
