@@ -296,7 +296,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </span> Total Sign-ups</div>
       </div>
-      <div class="val" id="kpiSignups" data-target="968">0</div>
+      <div class="val" id="kpiSignups" data-target="1130">0</div>
       <div class="foot"><span class="delta up">▲ 12.4%</span>
         <svg class="spark" viewBox="0 0 70 26" preserveAspectRatio="none"><polyline fill="none" stroke="#8B7CF6" stroke-width="2" points="0,22 12,18 24,15 36,11 48,9 60,5 70,3"/></svg></div>
     </div>
@@ -345,7 +345,7 @@
     </div>
     <div class="cell">
       <div class="b-label">Signup rate</div>
-      <div class="b-val" data-suffix="%" data-target="48.6">0</div>
+      <div class="b-val" data-suffix="%" data-target="56.7">0</div>
     </div>
     <div class="cell">
       <div class="b-label">Cost per install</div>
@@ -671,7 +671,7 @@
     <span class="ico" style="width:34px;height:34px;background:rgba(245,184,81,.18)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="#F5B851" stroke="#F5B851" stroke-width="1.5" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
     </span>
-    <h2>Ratings &amp; reviews</h2><span>App Store · 4.9 from 39 ratings</span>
+    <h2>Ratings &amp; reviews</h2><span>App Store · 4.9 from 39 ratings · updated Aug 9</span>
   </div>
   <section class="grid">
     <div class="card reveal">
@@ -741,7 +741,7 @@ Chart.defaults.color=AX;Chart.defaults.font.family=FONT;Chart.defaults.font.size
 Chart.defaults.responsive=true;Chart.defaults.maintainAspectRatio=false;  /* fill card width+height */
 
 /* Total sign-ups grows automatically by +2 every day (computed from today's date) */
-const SIGNUP_BASE=968, SIGNUP_BASE_DATE=Date.parse('2026-07-15T00:00:00');
+const SIGNUP_BASE=1130, SIGNUP_BASE_DATE=Date.parse('2026-08-10T00:00:00');
 const daysSinceBase=Math.max(0,Math.floor((Date.now()-SIGNUP_BASE_DATE)/86400000));
 const signupTotal=SIGNUP_BASE+2*daysSinceBase;
 (function(){const el=document.getElementById('kpiSignups');if(el)el.dataset.target=String(signupTotal);})();
@@ -761,9 +761,9 @@ for(let i=0;i<DAYS;i++){
   day.push({label:d.toLocaleDateString('en-US',{month:'short',day:'numeric'}),
     signups:(3+34*t)*(0.75+0.5*rnd()), clicksTotal:(28+64*t)*(0.75+0.5*rnd())});
 }
-/* scale so the last 30 days match headline numbers (968 signups, 2,240 clicks) */
+/* scale so the last 30 days match headline numbers (1,130 signups, 2,240 clicks) */
 function scale30(key,target){const s=day.slice(-30).reduce((a,b)=>a+b[key],0),f=target/s;day.forEach(o=>o[key]*=f);}
-scale30('signups',968); scale30('clicksTotal',2240);
+scale30('signups',1130); scale30('clicksTotal',2240);
 day.forEach(o=>{o.signups=Math.max(1,Math.round(o.signups));o.clicks=secW.map(w=>Math.round(o.clicksTotal*w/100));});
 
 const winDays=(p)=>p==='all'?day:day.slice(-p);
@@ -884,9 +884,9 @@ setTimeout(()=>document.querySelectorAll('#webPages .fill[data-w]').forEach(f=>f
 /* ---- Investor: conversion funnel ---- */
 const fsteps=[
   {n:'App Downloads',v:1992,w:100,c:'linear-gradient(90deg,#8B7CF6,#B79CFF)',note:'100% — top of funnel'},
-  {n:'Sign-ups',v:968,w:70,c:'linear-gradient(90deg,#7B67E8,#9d86ff)',note:'48.6% of downloads registered'},
-  {n:'Engaged users',v:612,w:47,c:'linear-gradient(90deg,#6f5ff0,#8B7CF6)',note:'63% of sign-ups opened a feature'},
-  {n:'Paying customers',v:14,w:24,c:'linear-gradient(90deg,#F6799E,#f5a06e)',note:'1.4% of sign-ups converted to paid'},
+  {n:'Sign-ups',v:1130,w:70,c:'linear-gradient(90deg,#7B67E8,#9d86ff)',note:'56.7% of downloads registered'},
+  {n:'Engaged users',v:612,w:47,c:'linear-gradient(90deg,#6f5ff0,#8B7CF6)',note:'54% of sign-ups opened a feature'},
+  {n:'Paying customers',v:14,w:24,c:'linear-gradient(90deg,#F6799E,#f5a06e)',note:'1.2% of sign-ups converted to paid'},
 ];
 document.getElementById('funnel').innerHTML=fsteps.map(s=>`
   <div class="fn-step">
