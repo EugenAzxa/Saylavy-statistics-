@@ -1077,7 +1077,8 @@ const SOCIAL=[
    followers:77,posts:null,er:null},
   {k:'threads',  name:'Threads',  handle:'@saylavy_app',url:'https://www.threads.com/@saylavy_app',
    followers:6,posts:4,er:null},
-  {k:'x',        name:'X',        handle:null,url:null,followers:null,posts:null,er:null},
+  {k:'x',        name:'X',        handle:'@Saylavy_app',url:'https://x.com/Saylavy_app',
+   followers:null,posts:null,er:null},
   {k:'facebook', name:'Facebook', handle:null,url:null,followers:null,posts:null,er:null},
 ];
 const SOC_LOGO={
@@ -1100,6 +1101,9 @@ const SOC_LOGO={
     if(!s.handle) return '<div class="soc-card empty reveal in">'+head+
       '<div class="soc-none">No '+s.name+' account is linked to this dashboard yet. '+
       'Followers, posts and engagement rate will appear here once one is.</div></div>';
+    if(s.followers==null) return '<div class="soc-card reveal in">'+head+
+      '<div class="soc-none">Account is live. '+s.name+' does not expose profile counts to '+
+      'automated reads, so its followers and posts have to be filled in by hand.</div></div>';
     const dash=(v,suf)=>v==null?'-':v.toLocaleString()+(suf||'');
     return '<div class="soc-card reveal in">'+head+
       '<div class="soc-num">'+s.followers.toLocaleString()+'</div><div class="soc-lbl">followers</div>'+
