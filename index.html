@@ -264,6 +264,22 @@
   .soc-row{display:flex;gap:18px;margin-top:auto;padding-top:13px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
   .soc-row b{display:block;color:var(--text);font-size:15px;font-weight:600;margin-bottom:1px}
   .soc-none{font-size:12.5px;color:var(--muted);line-height:1.6}
+  /* Top X posts */
+  .xp-stats{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+  .xp-stat{background:rgba(139,124,246,.10);border:1px solid rgba(139,124,246,.22);border-radius:11px;
+    padding:9px 13px;font-size:12px;color:var(--muted)}
+  .xp-stat b{display:block;color:var(--text);font-size:17px;font-weight:700;letter-spacing:-.4px;
+    font-family:'Space Grotesk','Inter',sans-serif;margin-bottom:1px}
+  .xp{display:flex;gap:14px;padding:15px 0;border-top:1px solid var(--line)}
+  .xp-rank{width:22px;flex:none;font-family:'Space Grotesk','Inter',sans-serif;font-size:16px;
+    font-weight:700;color:var(--accent-2);line-height:1.4}
+  .xp-body{flex:1;min-width:0}
+  .xp-to{font-size:12px;color:var(--accent-2);margin-bottom:3px}
+  .xp-text{font-size:13px;line-height:1.58}
+  .xp-meta{margin-top:8px;display:flex;gap:15px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .xp-meta b{color:var(--text);font-weight:600}
+  .xp-meta a{color:var(--accent-2);text-decoration:none}
+  .xp-meta a:hover{text-decoration:underline}
   @media(max-width:1024px){.socials{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:560px){.socials{grid-template-columns:1fr}}
 
@@ -614,6 +630,14 @@
     <h2>Social media engagement</h2><span id="socNote">Instagram · Facebook · X · Threads</span>
   </div>
   <section class="socials" id="socialCards"></section>
+  <section style="margin-bottom:16px">
+    <div class="card reveal">
+      <h3>Most engaged posts on X</h3>
+      <div class="hint" id="xHint"></div>
+      <div class="xp-stats" id="xStats"></div>
+      <div id="xPosts"></div>
+    </div>
+  </section>
 
   <!-- Investor metrics -->
   <div class="sales-head reveal">
@@ -1078,7 +1102,7 @@ const SOCIAL=[
   {k:'threads',  name:'Threads',  handle:'@saylavy_app',url:'https://www.threads.com/@saylavy_app',
    followers:6,posts:4,er:null},
   {k:'x',        name:'X',        handle:'@Saylavy_app',url:'https://x.com/Saylavy_app',
-   followers:null,posts:null,er:null},
+   followers:21,posts:200,er:5.8},
   {k:'facebook', name:'Facebook', handle:null,url:null,followers:null,posts:null,er:null},
 ];
 const SOC_LOGO={
@@ -1110,6 +1134,50 @@ const SOC_LOGO={
       '<div class="soc-row"><span><b>'+dash(s.posts)+'</b>posts</span>'+
       '<span><b>'+dash(s.er,'%')+'</b>engagement</span></div></div>';
   }).join('');
+})();
+
+/* ---- Top posts on X ----
+   Totals and rankings computed from the X account analytics export covering
+   Jul 13 to Aug 10 2026 (200 posts). Engagement rate here is engagements
+   divided by impressions, which is how X reports it - not the same formula
+   Instagram uses, so do not read the two side by side. */
+const X_PERIOD={from:'Jul 13',to:'Aug 10, 2026',posts:200,replies:100,
+  impressions:2440,likes:92,engagements:142,replyCount:21,visits:19,replyImpShare:82};
+const X_TOP=[
+  {to:'@GrowingUpRetro',d:'Aug 7',imp:286,likes:17,eng:19,
+   t:'They do, and one whiff of it drops you straight back into a 1980s bathtub. Smell is the deepest memory trigger there is.',
+   url:'https://x.com/Saylavy_app/status/2085834188293370051'},
+  {to:'@GrowingUpRetro',d:'Aug 6',imp:157,likes:9,eng:9,
+   t:'And you had to actually know the number by heart, or carry it on a scrap in your wallet. We memorized a dozen phone numbers back then.',
+   url:'https://x.com/Saylavy_app/status/2085462824130687230'},
+  {to:'@LynnsWPics',d:'Jul 24',imp:17,likes:2,eng:7,
+   t:'The detective work of matching one photo against another is such quiet, patient love. A whole family walked back out of anonymity.',
+   url:'https://x.com/Saylavy_app/status/2080486841606926702'},
+  {to:'@GrowingUpRetro',d:'Aug 7',imp:141,likes:6,eng:6,
+   t:'Staring out the window at absolutely nothing might be the thing we have quietly lost the most. No screen, no rush, just the radio and your own thoughts.',
+   url:'https://x.com/Saylavy_app/status/2085822872593846334'},
+  {to:'@chiddickstree',d:'Aug 8',imp:69,likes:3,eng:5,
+   t:'Postmans Park always gets me. Ordinary people who did one extraordinary thing, remembered only because someone chose to write it down.',
+   url:'https://x.com/Saylavy_app/status/2086186293394837913'},
+];
+(function(){
+  const P=X_PERIOD;
+  document.getElementById('xHint').textContent=
+    'Ranked by engagements · '+P.posts+' posts from '+P.from+' to '+P.to+
+    ' · half were replies, and those drew '+P.replyImpShare+'% of all impressions';
+  document.getElementById('xStats').innerHTML=[
+    ['Impressions',P.impressions.toLocaleString()],['Engagements',P.engagements],
+    ['Likes',P.likes],['Replies received',P.replyCount],['Profile visits',P.visits],
+    ['Engagement rate',(P.engagements/P.impressions*100).toFixed(1)+'%'],
+  ].map(([l,v])=>'<div class="xp-stat"><b>'+v+'</b>'+l+'</div>').join('');
+  document.getElementById('xPosts').innerHTML=X_TOP.map((p,i)=>
+    '<div class="xp"><div class="xp-rank">'+(i+1)+'</div><div class="xp-body">'+
+    '<div class="xp-to">replying to '+p.to+' · '+p.d+'</div>'+
+    '<div class="xp-text">'+p.t+'</div>'+
+    '<div class="xp-meta"><span><b>'+p.eng+'</b> engagements</span>'+
+    '<span><b>'+p.imp.toLocaleString()+'</b> impressions</span>'+
+    '<span><b>'+p.likes+'</b> likes</span>'+
+    '<a href="'+p.url+'" target="_blank" rel="noopener">View on X</a></div></div></div>').join('');
 })();
 
 /* ---- Website engagement: clicks by page/button ---- */
