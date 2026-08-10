@@ -301,6 +301,10 @@
   .xp-meta b{color:var(--text);font-weight:600}
   .xp-meta a{color:var(--accent-2);text-decoration:none}
   .xp-meta a:hover{text-decoration:underline}
+  .xp-cmt{margin-top:10px;padding:10px 13px;border-left:2px solid var(--accent);
+    background:rgba(139,124,246,.07);border-radius:0 10px 10px 0;
+    font-size:12.5px;line-height:1.6;color:var(--muted)}
+  .xp-cmt b{color:var(--accent-2);font-weight:600}
   @media(max-width:1024px){.socials{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:560px){.socials{grid-template-columns:1fr}}
 
@@ -678,6 +682,14 @@
       <div class="hint" id="xHint"></div>
       <div class="xp-stats" id="xStats"></div>
       <div id="xPosts"></div>
+    </div>
+  </section>
+  <section style="margin-bottom:16px">
+    <div class="card reveal">
+      <h3>Most engaged posts on Threads</h3>
+      <div class="hint" id="thHint"></div>
+      <div class="xp-stats" id="thStats"></div>
+      <div id="thPosts"></div>
     </div>
   </section>
 
@@ -1147,7 +1159,7 @@ const SOCIAL=[
   {k:'instagram',name:'Instagram',handle:'@saylavy_app',url:'https://www.instagram.com/saylavy_app/',
    followers:77,posts:null,er:null},
   {k:'threads',  name:'Threads',  handle:'@saylavy_app',url:'https://www.threads.com/@saylavy_app',
-   followers:6,posts:4,er:null,views:19056},
+   followers:6,posts:13,er:null,views:19056},
   {k:'x',        name:'X',        handle:'@Saylavy_app',url:'https://x.com/Saylavy_app',
    followers:21,posts:200,er:5.8},
   {k:'facebook', name:'Facebook', handle:null,url:null,followers:null,posts:null,er:null},
@@ -1227,6 +1239,59 @@ const X_TOP=[
     '<span><b>'+p.imp.toLocaleString()+'</b> impressions</span>'+
     '<span><b>'+p.likes+'</b> likes</span>'+
     '<a href="'+p.url+'" target="_blank" rel="noopener">View on X</a></div></div></div>').join('');
+})();
+
+/* ---- Top posts on Threads ----
+   From the Aug 10 2026 profile review of all 13 unique posts. Ranked by total
+   engagement, which is likes + replies + shares/reposts, the same way the
+   source document ranked them. Replies dominate here, which is the opposite
+   shape to X and the reason this account is worth watching. */
+const TH_PERIOD={posts:13,likes:55,replies:240,total:297,views:19056};
+const TH_TOP=[
+  {likes:20,replies:154,total:175,
+   t:"What is one thing you still actually use that belonged to someone you have lost? Not kept in a drawer, but used. A mug, a tool, a coat, a pen. Who did it belong to?",
+   url:"https://www.threads.com/@saylavy_app/post/DbEgXsimIFF",
+   by:"@leighesq",cl:11,
+   c:"This stapler from my childhood home. It's at least 50 years old. Mom kept it in a kitchen drawer by the wall-mounted rotary dial phone."},
+  {likes:5,replies:17,total:22,
+   t:"What is one object in your home that would be worth almost nothing at a yard sale and everything to you? Mine is a chipped mug nobody else is allowed to use.",
+   url:"https://www.threads.com/@saylavy_app/post/Da8yfE5jOaQ",
+   by:"@bhislip",cl:1,
+   c:"I have a lovely gravy boat that was my mother in law's. A simple thing, some interesting glazing on it. It deserved becoming part of our Thanksgiving traditions."},
+  {likes:9,replies:12,total:21,
+   t:"Is there a phrase only your family says? Something a grandparent started that everyone still repeats without thinking about where it came from. What is yours, and who do you hear when you say it?",
+   url:"https://www.threads.com/@saylavy_app/post/DbMPDZJGBzu",
+   by:"@armando19589",cl:3,
+   c:"En cada cabeza, su mundo. My mother is the only one I know to say this. Inside every head, their own world."},
+  {likes:6,replies:14,total:20,
+   t:"Is there one dish that instantly is a person for you? For me it is a certain soup. One spoonful and they are back in the room, standing at the stove. What is yours?",
+   url:"https://www.threads.com/@saylavy_app/post/Da6NxkimH7x",
+   by:"@b.nicole07",cl:2,
+   c:"The merry christmas cookies from the betty crocker picture cookbook. They're the only xmas cookie my grandma made and i cry every year when i make them now."},
+  {likes:2,replies:7,total:9,
+   t:"Is there a phrase or a saying someone you lost used to say, that you still catch yourself saying? Whose voice is it in, and what did they mean by it?",
+   url:"https://www.threads.com/@saylavy_app/post/DbUF6RQjb_0",
+   by:"@erin.blockabitch",cl:1,
+   c:"Yes, when looking for something that I cant find but its RIGHT THERE, my Nana would say if it were a snake it would've bit you. I miss her."},
+];
+(function(){
+  const P=TH_PERIOD;
+  document.getElementById('thHint').textContent=
+    'Ranked by total engagement · all '+P.posts+' posts reviewed Aug 10 · '+
+    'replies outnumber likes more than four to one, so people are answering rather than scrolling past';
+  document.getElementById('thStats').innerHTML=[
+    ['Views · 30d',P.views.toLocaleString()],['Total engagement',P.total],
+    ['Replies',P.replies],['Likes',P.likes],['Posts',P.posts],
+  ].map(([l,v])=>'<div class="xp-stat"><b>'+v+'</b>'+l+'</div>').join('');
+  document.getElementById('thPosts').innerHTML=TH_TOP.map((p,i)=>
+    '<div class="xp"><div class="xp-rank">'+(i+1)+'</div><div class="xp-body">'+
+    '<div class="xp-text">'+p.t+'</div>'+
+    '<div class="xp-meta"><span><b>'+p.total+'</b> total</span>'+
+    '<span><b>'+p.replies+'</b> replies</span>'+
+    '<span><b>'+p.likes+'</b> likes</span>'+
+    '<a href="'+p.url+'" target="_blank" rel="noopener">View on Threads</a></div>'+
+    '<div class="xp-cmt">Top reply · <b>'+p.by+'</b> · '+p.cl+' likes<br>'+p.c+'</div>'+
+    '</div></div>').join('');
 })();
 
 /* ---- Website engagement: clicks by page/button ---- */
