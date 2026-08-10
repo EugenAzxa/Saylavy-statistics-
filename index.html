@@ -209,6 +209,7 @@
   .map-legend .mk{display:inline-flex;align-items:center;gap:6px;margin-left:16px}
   .map-legend .mk i{width:9px;height:9px;border-radius:50%;background:#F6799E}
   .jvm-tooltip{background:#1A1838!important;border:1px solid #3a3568!important;color:#F4F3FB!important;font-family:'Inter',sans-serif!important;border-radius:8px!important;padding:6px 10px!important;box-shadow:0 8px 20px rgba(7,6,26,.5)!important}
+  .jvm-tooltip{line-height:1.5!important;font-size:12.5px!important;max-width:230px!important}
   @media(max-width:560px){.usage-map{height:320px}}
 
   /* reviews & availability */
@@ -434,7 +435,7 @@
     <span class="ico ico-spin" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a14 14 0 0 1 3.6 9 14 14 0 0 1-3.6 9 14 14 0 0 1-3.6-9A14 14 0 0 1 12 3z"/></svg>
     </span>
-    <h2>Where Saylavy is used</h2><span>Active users around the world</span>
+    <h2>Where Saylavy is used</h2><span>Hover a country for its user and download count</span>
   </div>
   <section style="margin-bottom:16px">
     <div class="card reveal">
@@ -904,6 +905,38 @@ document.getElementById('locations').innerHTML=locs.map(l=>`
     <span class="bar"><span class="fill" data-w="${Math.max(l.p/locMax*100,4)}"></span></span>
     <span class="pct">${l.p}%</span></div>`).join('');
 
+/* ---- Country data: one source for the list, the map colours and the tooltips ----
+   Shares are the measured split already shown in Top user locations. Counts are
+   that share applied to the real totals, so the map can never drift away from the
+   headline numbers. Europe and Other are regional buckets in the source data, so
+   the countries inside them are split by relative activity and flagged est:true -
+   only the 6% and 1% bucket totals are measured, not the per-country breakdown. */
+const DOWNLOAD_TOTAL=1992;   /* keep in step with the App Downloads KPI */
+const GEO={};
+[['CA','Canada',88],['RU','Russia',3],['US','United States',2]]
+  .forEach(([c,n,s])=>GEO[c]={name:n,share:s});
+const spread=(bucket,bucketShare)=>{
+  const sum=Object.values(bucket).reduce((a,[,w])=>a+w,0);
+  Object.entries(bucket).forEach(([c,[n,w]])=>GEO[c]={name:n,share:bucketShare*w/sum,est:true});
+};
+spread({GB:['United Kingdom',24],DE:['Germany',20],FR:['France',16],
+        NL:['Netherlands',11],IE:['Ireland',10]},6);   /* the Europe row */
+spread({AU:['Australia',18],AM:['Armenia',12],KZ:['Kazakhstan',9]},1);  /* the Other row */
+Object.values(GEO).forEach(g=>{
+  g.users=Math.round(signupTotal*g.share/100);
+  g.downloads=Math.round(DOWNLOAD_TOTAL*g.share/100);
+});
+/* jsvectormap has moved its tooltip API around between versions, so write
+   through whichever of these the loaded build actually exposes. */
+function setTip(tip,html){
+  try{
+    if(tip instanceof Element){tip.innerHTML=html;return;}
+    if(tip&&typeof tip.html==='function'){tip.html(html);return;}
+    if(tip&&typeof tip.text==='function'){tip.text(html,true);return;}
+    if(tip&&tip.el instanceof Element){tip.el.innerHTML=html;}
+  }catch(e){}
+}
+
 /* count-up */
 function countUp(el){
   const t=parseFloat(el.dataset.target), dec=(el.dataset.target.split('.')[1]||'').length;
@@ -938,7 +971,18 @@ try{
     backgroundColor:'transparent', zoomOnScroll:false, zoomButtons:false,
     regionStyle:{ initial:{ fill:'#211d40', stroke:'#0e0c26', strokeWidth:0.4 }, hover:{ fill:'#4a3f8a' } },
     series:{ regions:[{ attribute:'fill', scale:['#2c2657','#8B7CF6'], normalizeFunction:'polynomial',
-      values:{ CA:100, US:42, RU:38, GB:24, DE:20, FR:16, NL:11, IE:10, AU:18, AM:12, KZ:9 } }] },
+      values:Object.fromEntries(Object.entries(GEO).map(([c,g])=>[c,g.share])) }] },
+    onRegionTooltipShow(event,tooltip,code){
+      const cc=code||(tooltip&&tooltip.dataset&&tooltip.dataset.code);
+      const g=GEO[cc]; if(!g) return;
+      const pct=g.share<1?g.share.toFixed(1):Math.round(g.share);
+      setTip(tooltip,
+        '<b>'+g.name+'</b>'+
+        '<div style="margin-top:3px"><span style="color:#B79CFF;font-weight:600">'+
+          g.users.toLocaleString()+' users</span> · '+pct+'% of all users</div>'+
+        '<div style="color:#9B98C4">'+g.downloads.toLocaleString()+' downloads</div>'+
+        (g.est?'<div style="color:#F5B851;font-size:11px;margin-top:3px">Estimated from the regional total</div>':''));
+    },
     markers:[
       {name:'Canada', coords:[56.1,-106.3]},
       {name:'United States', coords:[39.8,-98.6]},
