@@ -246,6 +246,16 @@
   .store-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(139,124,246,.45)}
   @media(max-width:700px){.stores{grid-template-columns:1fr}}
 
+  /* App updates */
+  .updates{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px}
+  .upd-pill{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;
+    letter-spacing:.4px;text-transform:uppercase;padding:5px 11px;border-radius:99px;margin-bottom:13px}
+  .upd-pill.build{color:var(--teal);background:rgba(79,216,196,.12);border:1px solid rgba(79,216,196,.28)}
+  .upd-pill.talks{color:var(--amber);background:rgba(245,184,81,.12);border:1px solid rgba(245,184,81,.28)}
+  .upd-text{font-size:13.5px;line-height:1.68;color:var(--muted);margin-top:11px}
+  .upd-text b{color:var(--text);font-weight:600}
+  .upd-meta{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+
   footer{margin-top:40px;text-align:center;font-size:12.5px;color:var(--muted)}
   footer a{color:var(--accent-2);text-decoration:none}
 
@@ -255,7 +265,7 @@
   .reveal.in{opacity:1;transform:none}
 
   @media(max-width:1024px){.wrap{padding:24px 20px 56px}.banner{grid-template-columns:1fr 1fr}}
-  @media(max-width:900px){.kpis,.acq,.reviews{grid-template-columns:1fr 1fr}.grid,.sales,.heat-wrap{grid-template-columns:1fr}
+  @media(max-width:900px){.kpis,.acq,.reviews{grid-template-columns:1fr 1fr}.grid,.sales,.heat-wrap,.updates{grid-template-columns:1fr}
     .chart-box{height:230px}}
   @media(max-width:560px){.kpis,.banner,.acq,.reviews{grid-template-columns:1fr}.kpi .val{font-size:26px}.wrap{padding:20px 16px 48px}
     .chart-box{height:210px}.uecon{grid-template-columns:1fr}
@@ -724,6 +734,32 @@
       <div class="rtitle">Just wonderful</div>
       <div class="rby">Vikkkkapchelk · Aug 1</div>
       <div class="rtext">"I've been using this app for a while and it's just wonderful. The interface is very convenient and intuitive, which makes it accessible to everyone. Well done, team!"</div>
+    </div>
+  </section>
+
+  <!-- App updates -->
+  <div class="sales-head reveal">
+    <span class="ico" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    </span>
+    <h2>App updates</h2><span>In progress · nothing shipped yet</span>
+  </div>
+  <section class="updates">
+    <div class="card reveal">
+      <span class="upd-pill build">In development</span>
+      <h3>Proof of Life — automatic motion check-in</h3>
+      <div class="hint">Currently being built by the team</div>
+      <p class="upd-text">Proof of Life is moving from a manual tap to a <b>passive check-in based on real phone movement</b>. Instead of asking you to press a button to confirm you're okay, the app reads the phone's motion sensors and checks you in on its own once it detects you're up and moving around.</p>
+      <p class="upd-text">The point is that the signal becomes something you do rather than something you remember to do — the people watching your account get a genuine indication of activity, and a missed check-in means something.</p>
+      <div class="upd-meta">Status: in development · no release date set</div>
+    </div>
+    <div class="card reveal">
+      <span class="upd-pill talks">In talks · nothing signed</span>
+      <h3>Heritage Toronto partnership</h3>
+      <div class="hint">Early conversations — exploratory</div>
+      <p class="upd-text">Saylavy is <b>in early conversations with Heritage Toronto</b> about working together on preserving local history and personal memory — connecting the Memory Pages side of the app to Toronto's heritage storytelling.</p>
+      <p class="upd-text">Nothing has been agreed or signed. This is listed as pipeline, not as a closed partnership, and it should be read that way.</p>
+      <div class="upd-meta">Status: exploratory · no agreement in place</div>
     </div>
   </section>
 
