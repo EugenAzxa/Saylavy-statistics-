@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Saylavy — Statistics Dashboard</title>
+<title>Saylavy - Statistics Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -247,7 +247,7 @@
   @media(max-width:700px){.stores{grid-template-columns:1fr}}
 
   /* App updates */
-  .updates{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px}
+  .updates{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:16px}
   .upd-pill{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;
     letter-spacing:.4px;text-transform:uppercase;padding:5px 11px;border-radius:99px;margin-bottom:13px}
   .upd-pill.build{color:var(--teal);background:rgba(79,216,196,.12);border:1px solid rgba(79,216,196,.28)}
@@ -347,7 +347,7 @@
     <div class="cell">
       <div class="b-label">Return on ad spend</div>
       <div class="b-val pos" data-prefix="$" data-target="2.30">0</div>
-      <span class="roi-pill">per $1 spent · proven on a $100 test budget — ready to scale</span>
+      <span class="roi-pill">per $1 spent · proven on a $100 test budget - ready to scale</span>
     </div>
     <div class="cell">
       <div class="b-label">LTV : CAC ratio</div>
@@ -442,7 +442,7 @@
     </div>
     <div class="card reveal">
       <h3>Downloads vs goal</h3>
-      <div class="hint">Target: 1,500 – 2,000 downloads</div>
+      <div class="hint">Target: 1,500 - 2,000 downloads</div>
       <div class="goal-num" data-target="1992">0</div>
       <div class="goal-sub">of 2,000 target</div>
       <div class="track"><span class="fill" data-w="99.6"></span>
@@ -450,7 +450,7 @@
       <div class="goal-legend"><span>0</span><span>1,500</span><span>2,000</span></div>
       <div class="goal-tag">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5EE6A8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Goal reached — 8 to go for 2,000</div>
+        Goal reached - 8 to go for 2,000</div>
     </div>
   </section>
 
@@ -544,7 +544,7 @@
   <section style="margin-bottom:16px">
     <div class="card reveal">
       <h3>Growth &amp; projection</h3>
-      <div class="hint">Cumulative downloads — solid = actual, dashed = projected next 30 days</div>
+      <div class="hint">Cumulative downloads - solid = actual, dashed = projected next 30 days</div>
       <div class="chart-box" style="height:280px"><canvas id="growthChart"></canvas></div>
     </div>
   </section>
@@ -747,19 +747,27 @@
   <section class="updates">
     <div class="card reveal">
       <span class="upd-pill build">In development</span>
-      <h3>Proof of Life — automatic motion check-in</h3>
+      <h3>Proof of Life - automatic motion check-in</h3>
       <div class="hint">Currently being built by the team</div>
       <p class="upd-text">Proof of Life is moving from a manual tap to a <b>passive check-in based on real phone movement</b>. Instead of asking you to press a button to confirm you're okay, the app reads the phone's motion sensors and checks you in on its own once it detects you're up and moving around.</p>
-      <p class="upd-text">The point is that the signal becomes something you do rather than something you remember to do — the people watching your account get a genuine indication of activity, and a missed check-in means something.</p>
+      <p class="upd-text">The point is that the signal becomes something you do rather than something you remember to do - the people watching your account get a genuine indication of activity, and a missed check-in means something.</p>
       <div class="upd-meta">Status: in development · no release date set</div>
     </div>
     <div class="card reveal">
       <span class="upd-pill talks">In talks · nothing signed</span>
       <h3>Heritage Toronto partnership</h3>
-      <div class="hint">Early conversations — exploratory</div>
-      <p class="upd-text">Saylavy is <b>in early conversations with Heritage Toronto</b> about working together on preserving local history and personal memory — connecting the Memory Pages side of the app to Toronto's heritage storytelling.</p>
+      <div class="hint">Early conversations - exploratory</div>
+      <p class="upd-text">Saylavy is <b>in early conversations with Heritage Toronto</b> about working together on preserving local history and personal memory - connecting the Memory Pages side of the app to Toronto's heritage storytelling.</p>
       <p class="upd-text">Nothing has been agreed or signed. This is listed as pipeline, not as a closed partnership, and it should be read that way.</p>
       <div class="upd-meta">Status: exploratory · no agreement in place</div>
+    </div>
+    <div class="card reveal">
+      <span class="upd-pill build">In development</span>
+      <h3>AI conversation window for grief</h3>
+      <div class="hint">Currently being built by the team</div>
+      <p class="upd-text">An <b>AI conversation space for people who are grieving</b>, built into the app. It gives someone a place to talk through a loss at any hour, including the times when friends and family are asleep, or when saying it out loud to somebody you know feels like too much.</p>
+      <p class="upd-text">It is being designed around the specific shape of grief rather than as a general chatbot, and it sits next to Memory Pages so a conversation can begin from the person being remembered.</p>
+      <div class="upd-meta">Status: in development · no release date set</div>
     </div>
   </section>
 
@@ -868,7 +876,7 @@ const io=new IntersectionObserver((es)=>{es.forEach(en=>{
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 /* safety net: never let a card stay invisible */
 setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(revealEl),1800);
-/* locations aren't inside .reveal — animate their bars too */
+/* locations aren't inside .reveal - animate their bars too */
 setTimeout(()=>document.querySelectorAll('#locations .fill[data-w]').forEach(f=>f.style.width=f.dataset.w+'%'),300);
 
 /* ---- World usage map ---- */
@@ -914,7 +922,7 @@ setTimeout(()=>document.querySelectorAll('#webPages .fill[data-w]').forEach(f=>f
 
 /* ---- Investor: conversion funnel ---- */
 const fsteps=[
-  {n:'App Downloads',v:1992,w:100,c:'linear-gradient(90deg,#8B7CF6,#B79CFF)',note:'100% — top of funnel'},
+  {n:'App Downloads',v:1992,w:100,c:'linear-gradient(90deg,#8B7CF6,#B79CFF)',note:'100% - top of funnel'},
   {n:'Sign-ups',v:1130,w:70,c:'linear-gradient(90deg,#7B67E8,#9d86ff)',note:'56.7% of downloads registered'},
   {n:'Engaged users',v:612,w:47,c:'linear-gradient(90deg,#6f5ff0,#8B7CF6)',note:'54% of sign-ups opened a feature'},
   {n:'Paying customers',v:14,w:24,c:'linear-gradient(90deg,#F6799E,#f5a06e)',note:'1.2% of sign-ups converted to paid'},
@@ -1001,7 +1009,7 @@ function paintMini(){
 }
 paintMini();setInterval(paintMini,45000);
 
-/* streaming feed — events spread across the last ~3 hours */
+/* streaming feed - events spread across the last ~3 hours */
 const feedEl=document.getElementById('feed');
 const MAX_ITEMS=6;
 function relTime(ms){
@@ -1023,10 +1031,10 @@ function makeEvent(atMs){
 let events=[];
 /* seed 6 events with irregular gaps across the past several hours, newest first */
 (function seed(){
-  let t=Date.now()-(5+Math.random()*12)*60*1000;   // most recent 5–17 min ago
+  let t=Date.now()-(5+Math.random()*12)*60*1000;   // most recent 5-17 min ago
   for(let i=0;i<MAX_ITEMS;i++){
     events.push(makeEvent(t));
-    t-=(30+Math.random()*170)*60*1000;             // step back 30 min – 3h20 (irregular)
+    t-=(30+Math.random()*170)*60*1000;             // step back 30 min - 3h20 (irregular)
   }
 })();
 function render(){
@@ -1035,10 +1043,10 @@ function render(){
 }
 render();
 setInterval(render,30000);                    // refresh relative times
-/* new event trickles in at an irregular 4–13 min interval */
+/* new event trickles in at an irregular 4-13 min interval */
 (function schedule(){
   setTimeout(()=>{
-    events.unshift(makeEvent(Date.now()-Math.floor(Math.random()*7*60)*1000));  // 0–7 min old
+    events.unshift(makeEvent(Date.now()-Math.floor(Math.random()*7*60)*1000));  // 0-7 min old
     if(events.length>MAX_ITEMS)events.pop();
     render();schedule();
   },(240+Math.random()*540)*1000);
