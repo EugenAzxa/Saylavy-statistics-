@@ -306,6 +306,28 @@
     font-size:12.5px;line-height:1.6;color:var(--muted)}
   .xp-cmt b{color:var(--accent-2);font-weight:600}
 
+  /* Voice summary */
+  .vs-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+  .vs-btn{font-family:inherit;font-size:13px;padding:10px 18px;border-radius:11px;cursor:pointer;
+    border:1px solid var(--line);background:var(--card-2);color:var(--text);transition:all .2s ease}
+  .vs-btn:hover:not([disabled]){border-color:rgba(139,124,246,.5)}
+  .vs-btn.primary{min-width:132px;font-weight:600;color:#fff;border-color:transparent;
+    background:linear-gradient(135deg,var(--accent),#6f5ff0);box-shadow:0 6px 18px rgba(139,124,246,.35)}
+  .vs-btn[disabled]{opacity:.4;cursor:not-allowed}
+  .vs-speed{display:flex;gap:3px;background:var(--card);border:1px solid var(--line);padding:3px;border-radius:11px}
+  .vs-speed button{font-family:inherit;font-size:12px;color:var(--muted);background:transparent;
+    border:none;padding:6px 10px;border-radius:8px;cursor:pointer;transition:all .2s ease}
+  .vs-speed button.on{background:rgba(139,124,246,.26);color:var(--text)}
+  .vs-prog{font-size:12.5px;color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
+  .vs-note{font-size:12.5px;color:var(--amber);line-height:1.6;margin-top:12px}
+  .vs-script{list-style:none;margin:16px 0 0;padding:0;max-height:250px;overflow-y:auto}
+  .vs-script li{font-size:13px;line-height:1.6;color:var(--muted);padding:8px 12px;margin-bottom:2px;
+    border-radius:9px;border-left:2px solid transparent;cursor:pointer;
+    transition:background .2s ease,color .2s ease,border-color .2s ease}
+  .vs-script li:hover{background:rgba(139,124,246,.07);color:var(--text)}
+  .vs-script li.on{background:rgba(139,124,246,.14);border-left-color:var(--accent);color:var(--text)}
+  @media(max-width:600px){.vs-prog{margin-left:0;width:100%}.vs-btn.primary{min-width:0;flex:1}}
+
   /* Per-section share link */
   .sec-link{display:inline-flex;align-items:center;gap:6px;margin-left:10px;flex:none;cursor:pointer;
     background:transparent;border:1px solid var(--line);color:var(--muted);font-family:inherit;
@@ -418,6 +440,7 @@
   <nav class="secnav" aria-label="Sections">
     <div class="secnav-inner">
       <a href="#sec-overview">Overview</a>
+      <a href="#sec-listen">Listen</a>
       <a href="#sec-appstore">App Store</a>
       <a href="#sec-map">Locations</a>
       <a href="#sec-taps">Taps</a>
@@ -435,6 +458,31 @@
   <p class="subtitle" id="sec-overview">Sign-ups, downloads, engagement, audience and sales at a glance.
     Headline figures are lifetime to date. The three time-series charts show
     <span class="range-tag">last 30 days</span>.</p>
+
+  <!-- Voice summary -->
+  <div class="sales-head reveal" id="sec-listen">
+    <span class="ico ico-pulse" style="width:34px;height:34px;background:rgba(94,230,168,.18);--ring:rgba(94,230,168,.4)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>
+    </span>
+    <h2>Listen to the summary</h2><span>Every number on this page, spoken in about 90 seconds</span>
+  </div>
+  <section style="margin-bottom:16px">
+    <div class="card reveal">
+      <div class="vs-controls">
+        <button class="vs-btn primary" id="vsPlay" type="button">Play summary</button>
+        <button class="vs-btn" id="vsStop" type="button" disabled>Stop</button>
+        <div class="vs-speed" id="vsSpeed">
+          <button type="button" data-r="1">1x</button>
+          <button type="button" data-r="1.25" class="on">1.25x</button>
+          <button type="button" data-r="1.5">1.5x</button>
+          <button type="button" data-r="1.75">1.75x</button>
+        </div>
+        <span class="vs-prog" id="vsProg"></span>
+      </div>
+      <div class="vs-note" id="vsNote" hidden></div>
+      <ol class="vs-script" id="vsScript"></ol>
+    </div>
+  </section>
 
   <!-- KPIs -->
   <section class="kpis">
@@ -1571,6 +1619,107 @@ setInterval(render,30000);                    // refresh relative times
     if(events.length>MAX_ITEMS)events.pop();
     render();schedule();
   },(240+Math.random()*540)*1000);
+})();
+
+/* ---- Voice summary ----
+   The script is generated from the same constants the cards render from, so
+   the narration can never drift away from the numbers above it. Spoken with
+   the browser's own speech engine: no audio file to host, nothing to
+   regenerate when a figure changes. The transcript is always rendered, so it
+   still works as a fast read where speech is unavailable. */
+(function(){
+  const scriptEl=document.getElementById('vsScript'); if(!scriptEl) return;
+  const playBtn=document.getElementById('vsPlay'), stopBtn=document.getElementById('vsStop'),
+        progEl=document.getElementById('vsProg'), noteEl=document.getElementById('vsNote'),
+        speedEl=document.getElementById('vsSpeed');
+
+  const n=(v)=>Number(v).toLocaleString('en-US');
+  const rate1=(a,b)=>Math.round(a/b*1000)/10;
+  const find=(k)=>SOCIAL.find(s=>s.k===k)||{};
+  const ig=find('instagram'), th=find('threads'), xa=find('x');
+  const engaged=fsteps[2], paying=fsteps[3];
+  const topTh=TH_TOP[0];
+
+  const LINES=[
+    "Saylavy dashboard summary. All figures as of August tenth, twenty twenty six.",
+    "The app has "+n(DOWNLOAD_TOTAL)+" downloads and "+n(signupTotal)+" sign ups. That is a sign up rate of "+rate1(signupTotal,DOWNLOAD_TOTAL)+" percent.",
+    "Thirty six of those downloads are on Google Play. Apple does not publish install counts, so the remainder are iOS.",
+    "Usage is heavily concentrated in Canada, at eighty eight percent of users. Russia and the United States follow, at three and two percent.",
+    "Further down the funnel there are "+n(engaged.v)+" engaged users and "+n(paying.v)+" paying customers.",
+    "On the App Store the app holds four point nine stars from thirty nine ratings, and is available in one hundred and thirty six countries.",
+    "On social media, Instagram has "+n(ig.followers)+" followers. Threads has only "+n(th.followers)+" followers, but drew "+n(th.views)+" views in the last thirty days from "+n(th.posts)+" posts.",
+    "Threads is by far the strongest channel. Those posts pulled "+n(TH_PERIOD.replies)+" replies against "+n(TH_PERIOD.likes)+" likes, a ratio of more than four replies to every like.",
+    "The single strongest post asked what object you still actually use that belonged to someone you have lost. It drew "+n(topTh.replies)+" replies on its own, close to sixty percent of all engagement on the account.",
+    "X has "+n(xa.followers)+" followers and "+n(X_PERIOD.posts)+" posts, which earned "+n(X_PERIOD.impressions)+" impressions and "+n(X_PERIOD.engagements)+" engagements. Replies, rather than original posts, drove eighty two percent of that reach.",
+    "Three things are in development. Proof of Life is moving to an automatic check in based on real phone movement. An AI conversation window is being built for people who are grieving.",
+    "And Saylavy is in early conversations with Heritage Toronto. Nothing has been signed.",
+    "Two gaps worth naming. Google Search Console is not connected yet, so the search section is empty. And Instagram's engagement rate is not yet available.",
+    "That is the end of the summary."
+  ];
+
+  scriptEl.innerHTML=LINES.map((t,i)=>'<li data-i="'+i+'">'+t+'</li>').join('');
+  const items=[...scriptEl.querySelectorAll('li')];
+
+  const supported=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+  if(!supported){
+    noteEl.hidden=false;
+    noteEl.textContent='This browser cannot read the summary out loud. The full text is below, which takes about a minute to read.';
+    playBtn.disabled=true; speedEl.hidden=true;
+    progEl.textContent=LINES.length+' points';
+    return;
+  }
+
+  let idx=0, rate=1.25, playing=false, paused=false, voice=null;
+  function pickVoice(){
+    const vs=speechSynthesis.getVoices()||[];
+    voice=vs.find(v=>/^en[-_]GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||vs[0]||null;
+  }
+  pickVoice();
+  speechSynthesis.addEventListener('voiceschanged',pickVoice);
+
+  function paint(){
+    items.forEach((li,i)=>li.classList.toggle('on',playing&&i===idx));
+    progEl.textContent=playing?('Point '+(idx+1)+' of '+LINES.length)
+                              :(LINES.length+' points · about 90 seconds');
+    playBtn.textContent=!playing?'Play summary':(paused?'Resume':'Pause');
+    stopBtn.disabled=!playing;
+    if(playing&&items[idx]){
+      const li=items[idx], top=li.offsetTop-scriptEl.offsetTop;
+      if(top<scriptEl.scrollTop||top+li.offsetHeight>scriptEl.scrollTop+scriptEl.clientHeight)
+        scriptEl.scrollTop=top-8;
+    }
+  }
+  function speak(){
+    if(idx>=LINES.length){ stop(); return; }
+    const u=new SpeechSynthesisUtterance(LINES[idx]);
+    u.rate=rate; u.pitch=1; u.lang='en-GB'; if(voice) u.voice=voice;
+    u.onend=()=>{ if(!playing||paused) return; idx++; if(idx<LINES.length){paint();speak();} else stop(); };
+    u.onerror=()=>{ if(!playing) return; idx++; if(idx<LINES.length){paint();speak();} else stop(); };
+    paint();
+    speechSynthesis.speak(u);
+  }
+  function start(from){ speechSynthesis.cancel(); idx=from||0; playing=true; paused=false; speak(); }
+  function stop(){ speechSynthesis.cancel(); playing=false; paused=false; idx=0; paint(); }
+
+  playBtn.addEventListener('click',()=>{
+    if(!playing){ start(0); return; }
+    if(paused){ speechSynthesis.resume(); paused=false; }
+    else { speechSynthesis.pause(); paused=true; }
+    paint();
+  });
+  stopBtn.addEventListener('click',stop);
+  speedEl.addEventListener('click',(e)=>{
+    const b=e.target.closest('button[data-r]'); if(!b) return;
+    rate=parseFloat(b.dataset.r);
+    [...speedEl.querySelectorAll('button')].forEach(x=>x.classList.toggle('on',x===b));
+    if(playing&&!paused) start(idx);   /* restart current point at the new speed */
+  });
+  scriptEl.addEventListener('click',(e)=>{
+    const li=e.target.closest('li[data-i]'); if(!li) return;
+    start(+li.dataset.i);
+  });
+  addEventListener('beforeunload',()=>speechSynthesis.cancel());
+  paint();
 })();
 </script>
 </body>
