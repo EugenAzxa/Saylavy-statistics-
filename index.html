@@ -246,6 +246,30 @@
   .store-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(139,124,246,.45)}
   @media(max-width:700px){.stores{grid-template-columns:1fr}}
 
+  /* Section icons: idle motion, plus a lift when you hover the heading */
+  .ico{transition:transform .28s cubic-bezier(.22,1,.36,1),box-shadow .28s ease}
+  .sales-head:hover .ico{transform:scale(1.09);box-shadow:0 6px 18px rgba(7,6,26,.55)}
+  .ico svg{transform-origin:50% 50%}
+  .ico-float svg{animation:icoFloat 4.2s ease-in-out infinite}
+  .ico-spin svg{animation:icoSpin 22s linear infinite}
+  .ico-beat svg{animation:icoBeat 3.4s ease-in-out infinite}
+  .ico-bob svg{animation:icoBob 2.9s ease-in-out infinite}
+  .ico-wiggle svg{animation:icoWiggle 5s ease-in-out infinite}
+  .ico-bars rect{transform-box:fill-box;transform-origin:50% 100%;animation:icoBars 2.6s ease-in-out infinite}
+  .ico-bars rect.b2{animation-delay:.18s}
+  .ico-bars rect.b3{animation-delay:.36s}
+  .ico-pulse{position:relative}
+  .ico-pulse::after{content:'';position:absolute;inset:0;border-radius:10px;pointer-events:none;
+    animation:icoRing 3.2s ease-out infinite}
+  @keyframes icoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  @keyframes icoSpin{to{transform:rotate(360deg)}}
+  @keyframes icoBeat{0%,100%{transform:scale(1)}45%{transform:scale(1.14)}}
+  @keyframes icoBob{0%,100%{transform:translateY(-2px)}50%{transform:translateY(2px)}}
+  @keyframes icoWiggle{0%,88%,100%{transform:rotate(0)}92%{transform:rotate(-11deg)}96%{transform:rotate(11deg)}}
+  @keyframes icoBars{0%,100%{transform:scaleY(.72)}50%{transform:scaleY(1)}}
+  @keyframes icoRing{0%{box-shadow:0 0 0 0 var(--ring,rgba(139,124,246,.45))}
+    70%{box-shadow:0 0 0 11px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
+
   /* App updates */
   .updates{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:16px}
   .upd-pill{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;
@@ -263,6 +287,13 @@
   .kpi:hover,.card:hover,.sale-card:hover{transform:translateY(-3px);border-color:rgba(139,124,246,.5);box-shadow:0 14px 34px rgba(7,6,26,.6)}
   .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
   .reveal.in{opacity:1;transform:none}
+
+  @media(prefers-reduced-motion:reduce){
+    .logo,.dot,.ico svg,.ico-bars rect{animation:none}
+    .ico-pulse::after{display:none}
+    .reveal{opacity:1;transform:none;transition:none}
+    .sales-head:hover .ico{transform:none}
+  }
 
   @media(max-width:1024px){.wrap{padding:24px 20px 56px}.banner{grid-template-columns:1fr 1fr}}
   @media(max-width:900px){.kpis,.acq,.reviews{grid-template-columns:1fr 1fr}.grid,.sales,.heat-wrap,.updates{grid-template-columns:1fr}
@@ -365,8 +396,8 @@
 
   <!-- App Store acquisition (real App Store Connect data) -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(255,255,255,.09)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="#F4F3FB"><path d="M16.36 12.35c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.75 2.28-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.43-3.66zM14.13 5.6c.64-.77 1.07-1.85.95-2.92-.92.04-2.03.61-2.69 1.38-.59.68-1.11 1.77-.97 2.82 1.03.08 2.07-.52 2.71-1.28z"/></svg>
+    <span class="ico ico-float" style="width:34px;height:34px;background:rgba(255,255,255,.09)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M16.36 12.35c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.75 2.28-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.43-3.66zM14.13 5.6c.64-.77 1.07-1.85.95-2.92-.92.04-2.03.61-2.69 1.38-.59.68-1.11 1.77-.97 2.82 1.03.08 2.07-.52 2.71-1.28z" fill="#F4F3FB"/></svg>
     </span>
     <h2>App Store acquisition</h2><span>Live from App Store Connect · Aug 9</span>
   </div>
@@ -400,8 +431,8 @@
 
   <!-- World usage map -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <span class="ico ico-spin" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a14 14 0 0 1 3.6 9 14 14 0 0 1-3.6 9 14 14 0 0 1-3.6-9A14 14 0 0 1 12 3z"/></svg>
     </span>
     <h2>Where Saylavy is used</h2><span>Active users around the world</span>
   </div>
@@ -470,8 +501,8 @@
 
   <!-- Where users tap (real screenshots + heatmap) -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(255,80,90,.16)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6a72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.5V6a2 2 0 0 1 4 0v5.5"/><path d="M13 12V4a2 2 0 0 1 4 0v10"/><path d="M17 11.5a2 2 0 0 1 4 0V16a6 6 0 0 1-6 6h-2a6 6 0 0 1-5.2-3l-2.3-4a2 2 0 0 1 3.4-2l1.1 1.5"/></svg>
+    <span class="ico ico-pulse" style="width:34px;height:34px;background:rgba(255,80,90,.16);--ring:rgba(255,80,90,.45)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF505A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 9 5 12 1.8-5.2L21 14z"/><path d="M7.2 2.2 8 5.1"/><path d="m5.1 8-2.9-.8"/><path d="M14 4.1 12 6"/><path d="m6 12-1.9 2"/></svg>
     </span>
     <h2>Where users tap</h2><span>Live screenshots · red = most tapped</span>
   </div>
@@ -515,8 +546,8 @@
 
   <!-- Website engagement -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(79,216,196,.18)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4FD8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <span class="ico ico-float" style="width:34px;height:34px;background:rgba(79,216,196,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4FD8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><line x1="3" y1="9" x2="21" y2="9"/><circle cx="6.4" cy="6.5" r=".9"/><circle cx="9.4" cy="6.5" r=".9"/></svg>
     </span>
     <h2>Website engagement</h2><span>What visitors do on saylavy.com</span>
   </div>
@@ -535,8 +566,8 @@
 
   <!-- Google Search / SEO -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(245,184,81,.18)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5B851" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span class="ico ico-float" style="width:34px;height:34px;background:rgba(255,255,255,.09)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.06 12.25c0-.85-.08-1.67-.22-2.45H12v4.63h6.2a5.3 5.3 0 0 1-2.3 3.48v2.9h3.72c2.18-2 3.44-4.96 3.44-8.56z"/><path fill="#34A853" d="M12 23.5c3.11 0 5.72-1.03 7.62-2.79l-3.72-2.89c-1.03.69-2.35 1.1-3.9 1.1-3 0-5.55-2.03-6.46-4.76H1.69v2.98A11.5 11.5 0 0 0 12 23.5z"/><path fill="#FBBC05" d="M5.54 14.16a6.9 6.9 0 0 1 0-4.32V6.86H1.69a11.5 11.5 0 0 0 0 10.28l3.85-2.98z"/><path fill="#EA4335" d="M12 5.08c1.69 0 3.21.58 4.4 1.72l3.3-3.3C17.71 1.63 15.1.5 12 .5A11.5 11.5 0 0 0 1.69 6.86l3.85 2.98C6.45 7.11 9 5.08 12 5.08z"/></svg>
     </span>
     <h2>Google Search performance</h2><span id="seoRange">Google Search Console</span>
   </div>
@@ -556,8 +587,8 @@
 
   <!-- Investor metrics -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(94,230,168,.18)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span class="ico ico-bars" style="width:34px;height:34px;background:rgba(94,230,168,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><rect class="b1" x="3.6" y="13" width="4" height="7" rx="1.3" fill="#5EE6A8"/><rect class="b2" x="10" y="8" width="4" height="12" rx="1.3" fill="#5EE6A8"/><rect class="b3" x="16.4" y="4" width="4" height="16" rx="1.3" fill="#5EE6A8"/></svg>
     </span>
     <h2>Investor metrics</h2><span>Growth · funnel · unit economics · retention</span>
   </div>
@@ -607,8 +638,8 @@
 
   <!-- Sales -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+    <span class="ico ico-float" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
     </span>
     <h2>Sales</h2><span>Products sold to date</span>
   </div>
@@ -646,7 +677,7 @@
 
   <!-- Store ratings & reviews -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(79,216,196,.18)">
+    <span class="ico ico-bob" style="width:34px;height:34px;background:rgba(79,216,196,.18)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4FD8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     </span>
     <h2>Store downloads</h2><span>App Store &amp; Google Play · updated Aug 9</span>
@@ -694,8 +725,8 @@
 
   <!-- Ratings, reviews & availability -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(245,184,81,.18)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="#F5B851" stroke="#F5B851" stroke-width="1.5" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span class="ico ico-beat" style="width:34px;height:34px;background:rgba(245,184,81,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#F5B851"/></svg>
     </span>
     <h2>Ratings &amp; reviews</h2><span>App Store · 4.9 from 39 ratings · updated Aug 9</span>
   </div>
@@ -760,7 +791,7 @@
 
   <!-- App updates -->
   <div class="sales-head reveal">
-    <span class="ico" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
+    <span class="ico ico-wiggle" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
     </span>
     <h2>App updates</h2><span>In progress · nothing shipped yet</span>
