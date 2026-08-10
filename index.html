@@ -50,6 +50,11 @@
     border:none;background:transparent;font-family:inherit;transition:all .2s}
   .chip.active{background:linear-gradient(135deg,var(--accent),#6f5ff0);color:#fff;box-shadow:0 4px 14px rgba(139,124,246,.4)}
   .chip:hover:not(.active){color:var(--text)}
+  .chips-label{align-self:center;font-size:11px;text-transform:uppercase;letter-spacing:.5px;
+    color:var(--muted);padding:0 8px 0 6px}
+  .range-tag{display:inline-block;color:var(--accent-2);background:rgba(139,124,246,.14);
+    border:1px solid rgba(139,124,246,.3);border-radius:7px;padding:1px 8px;font-weight:600;
+    font-size:13px;transition:background .25s ease}
   .live{display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line);
     padding:9px 14px;border-radius:12px;font-size:12.5px;color:var(--muted)}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
@@ -372,7 +377,8 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="chips">
+      <div class="chips" title="Range for the time-series charts">
+        <span class="chips-label">Charts</span>
         <button class="chip">7d</button>
         <button class="chip active">30d</button>
         <button class="chip">All</button>
@@ -398,7 +404,9 @@
     </div>
   </nav>
 
-  <p class="subtitle" id="sec-overview">Sign-ups, downloads, engagement, audience and sales at a glance.</p>
+  <p class="subtitle" id="sec-overview">Sign-ups, downloads, engagement, audience and sales at a glance.
+    Headline figures are lifetime to date. The three time-series charts show
+    <span class="range-tag">last 30 days</span>.</p>
 
   <!-- KPIs -->
   <section class="kpis">
@@ -684,7 +692,7 @@
   <section style="margin-bottom:16px">
     <div class="card reveal">
       <h3>Growth &amp; projection</h3>
-      <div class="hint">Cumulative downloads - solid = actual, dashed = projected next 30 days</div>
+      <div class="hint" id="growthHint">Cumulative downloads - solid = actual, dashed = projected next 30 days</div>
       <div class="chart-box" style="height:280px"><canvas id="growthChart"></canvas></div>
     </div>
   </section>
@@ -967,11 +975,16 @@ function buildClicks(p){
       scales:{x:{grid:{display:false}},y:{grid:{color:GRID},beginAtZero:true}}}});
 }
 function setPeriod(p){
-  buildSignups(p); buildClicks(p);
+  buildSignups(p); buildClicks(p); buildGrowth(p);
   const lbl=(p==='all'?'all time':'last '+p+' days');
-  /* Total Sign-ups KPI stays the auto-growing cumulative total; only the chart changes per period */
+  /* Headline KPIs are lifetime-to-date and deliberately do not move with the
+     range. Only the three time-series charts below are windowed, and each one
+     states the active range so it is obvious which cards the chips drive. */
   document.getElementById('signHint').textContent='Daily new users · '+lbl;
   document.getElementById('clickHint').textContent='Engagement by app section · '+lbl;
+  document.getElementById('growthHint').textContent=
+    'Cumulative downloads · '+lbl+' · solid = actual, dashed = projected next 30 days';
+  document.querySelectorAll('.range-tag').forEach(t=>{t.textContent=lbl;});
 }
 
 const salesChart=new Chart(document.getElementById('salesChart'),{
@@ -1259,16 +1272,23 @@ const rate=inc.slice(-14).reduce((a,b)=>a+b,0)/14;
 let pj=Array(GD).fill(null); pj[GD-1]=cum[GD-1]; let pr=cum[GD-1];
 for(let i=0;i<PROJ;i++){pr+=rate*(1+i*0.006);const d=new Date(t0);d.setDate(t0.getDate()+i+1);
   labelsG.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));pj.push(Math.round(pr));}
-const actual=[...cum,...Array(PROJ).fill(null)];
-const growthChart=new Chart(document.getElementById('growthChart'),{type:'line',
-  data:{labels:labelsG,datasets:[
-    {label:'Actual',data:actual,borderColor:'#8B7CF6',borderWidth:3,tension:.35,pointRadius:0,fill:true,
+/* Windowed by the period chips: slice the actual days, always keep the full
+   projection tail so the dashed forecast stays visible at every range. */
+let growthChart;
+function buildGrowth(p){
+  const n=(p==='all')?GD:Math.min(p,GD), start=GD-n;
+  const data={labels:labelsG.slice(start),datasets:[
+    {label:'Actual',data:[...cum.slice(start),...Array(PROJ).fill(null)],
+      borderColor:'#8B7CF6',borderWidth:3,tension:.35,pointRadius:0,fill:true,
       backgroundColor:(c)=>grad(c.chart.ctx,'rgba(139,124,246,.35)','rgba(139,124,246,0)')},
-    {label:'Projected',data:pj,borderColor:'#5EE6A8',borderWidth:2.5,borderDash:[6,6],tension:.35,pointRadius:0,fill:false}
-  ]},
-  options:{animation:{duration:1100},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}}},
-    scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,autoSkip:true,maxRotation:0}},y:{grid:{color:GRID},beginAtZero:true}}}
-});
+    {label:'Projected',data:pj.slice(start),borderColor:'#5EE6A8',borderWidth:2.5,
+      borderDash:[6,6],tension:.35,pointRadius:0,fill:false}
+  ]};
+  if(growthChart){growthChart.data=data;growthChart.update();}
+  else growthChart=new Chart(document.getElementById('growthChart'),{type:'line',data,
+    options:{animation:{duration:1100},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}}},
+      scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,autoSkip:true,maxRotation:0}},y:{grid:{color:GRID},beginAtZero:true}}}});
+}
 
 /* ---- Investor: retention curve ---- */
 const retentionChart=new Chart(document.getElementById('retentionChart'),{type:'bar',
