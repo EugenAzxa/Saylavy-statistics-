@@ -44,7 +44,7 @@
   .brand h1{font-size:22px;font-weight:700;letter-spacing:-.3px;
     background:linear-gradient(90deg,#fff,#C9BEFF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .brand p{font-size:13px;color:var(--muted);margin-top:2px}
-  .header-right{display:flex;align-items:center;gap:10px}
+  .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .chips{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);padding:4px;border-radius:12px}
   .chip{font-size:12.5px;color:var(--muted);padding:6px 12px;border-radius:9px;cursor:pointer;
     border:none;background:transparent;font-family:inherit;transition:all .2s}
@@ -305,6 +305,17 @@
     background:rgba(139,124,246,.07);border-radius:0 10px 10px 0;
     font-size:12.5px;line-height:1.6;color:var(--muted)}
   .xp-cmt b{color:var(--accent-2);font-weight:600}
+
+  /* Per-section share link */
+  .sec-link{display:inline-flex;align-items:center;gap:6px;margin-left:10px;flex:none;cursor:pointer;
+    background:transparent;border:1px solid var(--line);color:var(--muted);font-family:inherit;
+    font-size:11.5px;padding:5px 10px;border-radius:9px;opacity:0;
+    transition:opacity .2s ease,color .2s ease,border-color .2s ease,background .2s ease}
+  .sales-head:hover .sec-link,.sec-link:focus-visible{opacity:1}
+  .sec-link:hover{color:var(--text);border-color:rgba(139,124,246,.5);background:rgba(139,124,246,.12)}
+  .sec-link.done{opacity:1;color:var(--green);border-color:rgba(94,230,168,.45);background:rgba(94,230,168,.12)}
+  /* touch devices have no hover, so never hide it there */
+  @media(hover:none){.sec-link{opacity:1}}
   @media(max-width:1024px){.socials{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:560px){.socials{grid-template-columns:1fr}}
 
@@ -361,6 +372,19 @@
   @media(max-width:1024px){.wrap{padding:24px 20px 56px}.banner{grid-template-columns:1fr 1fr}}
   @media(max-width:900px){.kpis,.acq,.reviews{grid-template-columns:1fr 1fr}.grid,.sales,.heat-wrap,.updates{grid-template-columns:1fr}
     .chart-box{height:230px}}
+  /* Phone: tighten the pieces added after the original layout */
+  @media(max-width:600px){
+    .chips-label{display:none}                       /* header would otherwise overflow */
+    .sales-head span{margin-left:0;width:100%;order:3}/* subtitle drops to its own line */
+    .sec-link{margin-left:auto}
+    .xp{gap:10px;padding:13px 0}
+    .xp-stats{gap:8px}
+    .xp-stat{padding:8px 11px;font-size:11.5px}
+    .xp-stat b{font-size:15px}
+    .xp-cmt{padding:9px 11px;font-size:12px}
+    .soc-num{font-size:26px}
+    .goal-num{font-size:28px}
+  }
   @media(max-width:560px){.kpis,.banner,.acq,.reviews{grid-template-columns:1fr}.kpi .val{font-size:26px}.wrap{padding:20px 16px 48px}
     .chart-box{height:210px}.uecon{grid-template-columns:1fr}
     .banner .cell{border-left:none;border-top:1px solid rgba(255,255,255,.07)}
@@ -1378,6 +1402,68 @@ function resizeAllCharts(){
 }
 window.addEventListener('load',resizeAllCharts);
 window.addEventListener('resize',resizeAllCharts);
+
+/* ---- Per-section share links ----
+   Every section heading gets a Copy link button, so a section can be sent on
+   its own. Uses the async clipboard API where available and falls back to a
+   hidden textarea, because file:// and plain http are not secure contexts and
+   navigator.clipboard is undefined there. */
+(function(){
+  const heads=[...document.querySelectorAll('.sales-head[id^="sec-"]')];
+  if(!heads.length) return;
+  const linkFor=(id)=>location.origin+location.pathname+location.search+'#'+id;
+  function copy(text){
+    if(navigator.clipboard&&window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise((resolve,reject)=>{
+      const ta=document.createElement('textarea');
+      ta.value=text; ta.setAttribute('readonly','');
+      ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      let ok=false;
+      try{ ok=document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta);
+      ok?resolve():reject();
+    });
+  }
+  heads.forEach(h=>{
+    const name=(h.querySelector('h2')||{}).textContent||'section';
+    const b=document.createElement('button');
+    b.type='button'; b.className='sec-link';
+    b.title='Copy a link straight to this section';
+    b.setAttribute('aria-label','Copy link to '+name);
+    b.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+      '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>'+
+      '<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'+
+      '<span>Copy link</span>';
+    const label=b.querySelector('span');
+    b.addEventListener('click',()=>{
+      copy(linkFor(h.id)).then(()=>{
+        history.replaceState(null,'','#'+h.id);
+        b.classList.add('done'); label.textContent='Copied';
+        setTimeout(()=>{b.classList.remove('done'); label.textContent='Copy link';},1700);
+      }).catch(()=>{ label.textContent='Copy failed';
+        setTimeout(()=>{label.textContent='Copy link';},1700); });
+    });
+    h.appendChild(b);
+  });
+  /* Arriving on a deep link: charts render after load and change the page
+     height, so the first scroll lands short. Re-align a few times, but stop
+     the moment the reader scrolls for themselves. */
+  const target=location.hash&&document.getElementById(location.hash.slice(1));
+  if(target){
+    let moved=false;
+    const stop=()=>{moved=true;};
+    addEventListener('wheel',stop,{passive:true,once:true});
+    addEventListener('touchmove',stop,{passive:true,once:true});
+    addEventListener('keydown',(e)=>{
+      if(['PageDown','PageUp','ArrowDown','ArrowUp','Home','End',' '].indexOf(e.key)>-1) stop();
+    },{once:true});
+    [300,1000,2000].forEach(ms=>setTimeout(()=>{
+      if(!moved) target.scrollIntoView({block:'start',behavior:'auto'});
+    },ms));
+  }
+})();
 
 /* ---- Section nav ----
    Highlights whichever section you are currently looking at, and keeps that
