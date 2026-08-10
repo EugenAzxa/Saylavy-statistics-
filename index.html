@@ -8,6 +8,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/jsvectormap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/jsvectormap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/maps/world.js"></script>
 <style>
   :root{
     --bg:#07061A;--card:#12102E;--card-2:#1A1838;--line:#26234A;
@@ -55,6 +58,7 @@
 
   /* KPI cards */
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+  .acq{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   .kpi{background:linear-gradient(180deg,rgba(24,21,54,.9),rgba(20,17,44,.9));border:1px solid var(--line);
     border-radius:18px;padding:18px 20px;position:relative;overflow:hidden;backdrop-filter:blur(6px)}
   .kpi .top{display:flex;align-items:center;justify-content:space-between}
@@ -198,6 +202,29 @@
   .heat-legend span{display:inline-flex;align-items:center;gap:7px}
   .heat-legend i{width:10px;height:10px;border-radius:50%}
 
+  /* world usage map */
+  .usage-map{height:440px;width:100%}
+  .map-legend{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .map-legend .grad{width:120px;height:8px;border-radius:99px;background:linear-gradient(90deg,#2c2657,#8B7CF6)}
+  .map-legend .mk{display:inline-flex;align-items:center;gap:6px;margin-left:16px}
+  .map-legend .mk i{width:9px;height:9px;border-radius:50%;background:#F6799E}
+  .jvm-tooltip{background:#1A1838!important;border:1px solid #3a3568!important;color:#F4F3FB!important;font-family:'Inter',sans-serif!important;border-radius:8px!important;padding:6px 10px!important;box-shadow:0 8px 20px rgba(7,6,26,.5)!important}
+  @media(max-width:560px){.usage-map{height:320px}}
+
+  /* reviews & availability */
+  .reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .review{background:linear-gradient(180deg,rgba(24,21,54,.9),rgba(20,17,44,.9));border:1px solid var(--line);border-radius:16px;padding:18px}
+  .review .rstars{color:#F5B851;font-size:13px;letter-spacing:2px;margin-bottom:9px}
+  .review .rtitle{font-weight:700;font-size:14px;margin-bottom:3px}
+  .review .rby{font-size:11.5px;color:var(--muted);margin-bottom:11px}
+  .review .rtext{font-size:12.5px;color:#cbc7e6;line-height:1.55}
+  .avail-row{display:flex;gap:32px}
+  .avail-item{display:flex;flex-direction:column}
+  .avail-item .an{font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:700;line-height:1;letter-spacing:-1px}
+  .avail-item .al{font-size:12px;color:var(--muted);margin-top:6px}
+  .avail-item.ok .an{color:var(--green)}
+  .avail-item.no .an{color:var(--amber)}
+
   /* store ratings */
   .stores{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .store-card{background:linear-gradient(180deg,rgba(24,21,54,.9),rgba(20,17,44,.9));border:1px solid var(--line);
@@ -228,9 +255,9 @@
   .reveal.in{opacity:1;transform:none}
 
   @media(max-width:1024px){.wrap{padding:24px 20px 56px}.banner{grid-template-columns:1fr 1fr}}
-  @media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}.grid,.sales,.heat-wrap{grid-template-columns:1fr}
+  @media(max-width:900px){.kpis,.acq,.reviews{grid-template-columns:1fr 1fr}.grid,.sales,.heat-wrap{grid-template-columns:1fr}
     .chart-box{height:230px}}
-  @media(max-width:560px){.kpis,.banner{grid-template-columns:1fr}.kpi .val{font-size:26px}.wrap{padding:20px 16px 48px}
+  @media(max-width:560px){.kpis,.banner,.acq,.reviews{grid-template-columns:1fr}.kpi .val{font-size:26px}.wrap{padding:20px 16px 48px}
     .chart-box{height:210px}.uecon{grid-template-columns:1fr}
     .banner .cell{border-left:none;border-top:1px solid rgba(255,255,255,.07)}
     .banner .cell:first-child{border-top:none}
@@ -323,6 +350,63 @@
     <div class="cell">
       <div class="b-label">Cost per install</div>
       <div class="b-val" data-prefix="$" data-target="0.05">0</div>
+    </div>
+  </section>
+
+  <!-- App Store acquisition (real App Store Connect data) -->
+  <div class="sales-head reveal">
+    <span class="ico" style="width:34px;height:34px;background:rgba(255,255,255,.09)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#F4F3FB"><path d="M16.36 12.35c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.75 2.28-1.6 2.78-.41 6.89 1.15 9.14.76 1.1 1.67 2.34 2.86 2.29 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.43-3.66zM14.13 5.6c.64-.77 1.07-1.85.95-2.92-.92.04-2.03.61-2.69 1.38-.59.68-1.11 1.77-.97 2.82 1.03.08 2.07-.52 2.71-1.28z"/></svg>
+    </span>
+    <h2>App Store acquisition</h2><span>Live from App Store Connect · Aug 9</span>
+  </div>
+  <section class="acq" style="margin-bottom:16px">
+    <div class="kpi reveal">
+      <div class="top"><div class="label">First-time downloads</div></div>
+      <div class="val" data-target="65">0</div>
+      <div class="foot"><span class="delta up">▲ 829% vs prior day</span></div>
+    </div>
+    <div class="kpi reveal">
+      <div class="top"><div class="label">Redownloads</div></div>
+      <div class="val" data-target="5">0</div>
+      <div class="foot"><span class="delta neutral">reinstalls</span></div>
+    </div>
+    <div class="kpi reveal">
+      <div class="top"><div class="label">Conversion rate</div></div>
+      <div class="val" data-target="19.9" data-suffix="%">0</div>
+      <div class="foot"><span class="delta up">▲ 105% · daily avg</span></div>
+    </div>
+    <div class="kpi reveal">
+      <div class="top"><div class="label">Impressions</div></div>
+      <div class="val" data-target="897">0</div>
+      <div class="foot"><span class="delta up">▲ 475% vs prior day</span></div>
+    </div>
+    <div class="kpi reveal">
+      <div class="top"><div class="label">Product page views</div></div>
+      <div class="val" data-target="536">0</div>
+      <div class="foot"><span class="delta up">▲ 779% vs prior day</span></div>
+    </div>
+    <div class="kpi reveal">
+      <div class="top"><div class="label">Updates</div></div>
+      <div class="val" data-target="12">0</div>
+      <div class="foot"><span class="delta up">▲ 300% vs prior day</span></div>
+    </div>
+  </section>
+
+  <!-- World usage map -->
+  <div class="sales-head reveal">
+    <span class="ico" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    </span>
+    <h2>Where Saylavy is used</h2><span>Active users around the world</span>
+  </div>
+  <section style="margin-bottom:16px">
+    <div class="card reveal">
+      <div id="usageMap" class="usage-map"></div>
+      <div class="map-legend">
+        <span>Fewer users</span><span class="grad"></span><span>More users</span>
+        <span class="mk"><i></i> Active hubs</span>
+      </div>
     </div>
   </section>
 
@@ -582,6 +666,72 @@
     </div>
   </section>
 
+  <!-- Ratings, reviews & availability -->
+  <div class="sales-head reveal">
+    <span class="ico" style="width:34px;height:34px;background:rgba(245,184,81,.18)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#F5B851" stroke="#F5B851" stroke-width="1.5" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </span>
+    <h2>Ratings &amp; reviews</h2><span>App Store · 4.9 from 39 ratings</span>
+  </div>
+  <section class="grid">
+    <div class="card reveal">
+      <h3>iOS App Store rating</h3><div class="hint">All-time average across all versions</div>
+      <div class="rating-row" style="margin-top:8px">
+        <div class="rating-big">4.9</div>
+        <div>
+          <div style="color:#F5B851;font-size:17px;letter-spacing:2px;margin-bottom:6px">★★★★★</div>
+          <div class="rating-meta"><b style="color:var(--text)">39 ratings</b><br>iOS · Version 1.0.4</div>
+        </div>
+      </div>
+    </div>
+    <div class="card reveal">
+      <h3>App availability</h3><div class="hint">Countries &amp; regions on the App Store</div>
+      <div class="avail-row" style="margin-top:12px">
+        <div class="avail-item ok"><span class="an" data-target="136">0</span><span class="al">Available</span></div>
+        <div class="avail-item no"><span class="an" data-target="39">0</span><span class="al">Not yet available</span></div>
+      </div>
+      <div class="est" style="margin-top:18px">Live and downloadable in 136 countries and regions worldwide</div>
+    </div>
+  </section>
+  <section class="reviews reveal" style="margin-top:16px">
+    <div class="review">
+      <div class="rstars">★★★★★</div>
+      <div class="rtitle">Thoughtful and easy to use</div>
+      <div class="rby">Diljots01 · Jun 30</div>
+      <div class="rtext">"A thoughtful, easy-to-use app that makes it simple to organize important life wishes and stay connected with loved ones. The interface is clean, and the concept of preserving memories and planning ahead is both meaningful and reassuring."</div>
+    </div>
+    <div class="review">
+      <div class="rstars">★★★★★</div>
+      <div class="rtitle">Such a thoughtful app</div>
+      <div class="rby">Laz_y5 · Aug 1</div>
+      <div class="rtext">"Exactly what I needed. It makes a tough topic feel completely manageable. I love the Memory Pages feature — such a sweet way to leave messages for family. Simple to navigate, doesn't freeze, and feels very secure."</div>
+    </div>
+    <div class="review">
+      <div class="rstars">★★★★★</div>
+      <div class="rtitle">Simple and thoughtful</div>
+      <div class="rby">Olegka M · Aug 1</div>
+      <div class="rtext">"Downloaded it out of curiosity and ended up really liking it. You can record messages for family, set up Memory Pages, and the Proof of Life button is super handy. Takes a minute to set up, then it just works."</div>
+    </div>
+    <div class="review">
+      <div class="rstars">★★★★★</div>
+      <div class="rtitle">Great app, unique concept</div>
+      <div class="rby">alexandrovna11 · Aug 2</div>
+      <div class="rtext">"Very intuitive and easy to navigate. I love the Proof of Life feature — a simple way to let close friends know you're okay without constant messaging. Clean, modern, and everything works smoothly."</div>
+    </div>
+    <div class="review">
+      <div class="rstars">★★★★★</div>
+      <div class="rtitle">Incredibly thoughtful concept</div>
+      <div class="rby">Bepig42 · Aug 1</div>
+      <div class="rtext">"Perfect way to stay connected with close friends and organize personal wishes with clarity, care, and privacy. Exactly what I was looking for!"</div>
+    </div>
+    <div class="review">
+      <div class="rstars">★★★★★</div>
+      <div class="rtitle">Just wonderful</div>
+      <div class="rby">Vikkkkapchelk · Aug 1</div>
+      <div class="rtext">"I've been using this app for a while and it's just wonderful. The interface is very convenient and intuitive, which makes it accessible to everyone. Well done, team!"</div>
+    </div>
+  </section>
+
   <footer>Saylavy Analytics · <a href="https://saylavy.com" target="_blank">saylavy.com</a></footer>
 </div>
 
@@ -689,6 +839,28 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(revealEl),1800);
 /* locations aren't inside .reveal — animate their bars too */
 setTimeout(()=>document.querySelectorAll('#locations .fill[data-w]').forEach(f=>f.style.width=f.dataset.w+'%'),300);
+
+/* ---- World usage map ---- */
+try{
+  new jsVectorMap({
+    selector:'#usageMap', map:'world',
+    backgroundColor:'transparent', zoomOnScroll:false, zoomButtons:false,
+    regionStyle:{ initial:{ fill:'#211d40', stroke:'#0e0c26', strokeWidth:0.4 }, hover:{ fill:'#4a3f8a' } },
+    series:{ regions:[{ attribute:'fill', scale:['#2c2657','#8B7CF6'], normalizeFunction:'polynomial',
+      values:{ CA:100, US:42, RU:38, GB:24, DE:20, FR:16, NL:11, IE:10, AU:18, AM:12, KZ:9 } }] },
+    markers:[
+      {name:'Canada', coords:[56.1,-106.3]},
+      {name:'United States', coords:[39.8,-98.6]},
+      {name:'United Kingdom', coords:[54,-2]},
+      {name:'Germany', coords:[51.2,10.4]},
+      {name:'Russia', coords:[61.5,105.3]},
+      {name:'Armenia', coords:[40.1,45]},
+      {name:'Kazakhstan', coords:[48,67]},
+      {name:'Australia', coords:[-25.3,133.8]}
+    ],
+    markerStyle:{ initial:{ fill:'#F6799E', stroke:'#0b0a26', strokeWidth:1.5, r:5 }, hover:{ r:7, fill:'#ff8fb0' } }
+  });
+}catch(e){ var m=document.getElementById('usageMap'); if(m) m.innerHTML='<div style="padding:40px;text-align:center;color:#9B98C4">Map unavailable</div>'; }
 
 /* ---- Website engagement: clicks by page/button ---- */
 const webClicksChart=new Chart(document.getElementById('webClicksChart'),{type:'bar',
