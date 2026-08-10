@@ -306,7 +306,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4FD8C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </span> App Downloads</div>
       </div>
-      <div class="val" data-target="1842">0</div>
+      <div class="val" data-target="1992">0</div>
       <div class="foot"><span class="delta up">▲ Goal reached</span>
         <svg class="spark" viewBox="0 0 70 26" preserveAspectRatio="none"><polyline fill="none" stroke="#4FD8C4" stroke-width="2" points="0,20 12,21 24,16 36,14 48,10 60,7 70,6"/></svg></div>
     </div>
@@ -345,7 +345,7 @@
     </div>
     <div class="cell">
       <div class="b-label">Signup rate</div>
-      <div class="b-val" data-suffix="%" data-target="52.6">0</div>
+      <div class="b-val" data-suffix="%" data-target="48.6">0</div>
     </div>
     <div class="cell">
       <div class="b-label">Cost per install</div>
@@ -438,14 +438,14 @@
     <div class="card reveal">
       <h3>Downloads vs goal</h3>
       <div class="hint">Target: 1,500 – 2,000 downloads</div>
-      <div class="goal-num" data-target="1842">0</div>
+      <div class="goal-num" data-target="1992">0</div>
       <div class="goal-sub">of 2,000 target</div>
-      <div class="track"><span class="fill" data-w="92"></span>
+      <div class="track"><span class="fill" data-w="99.6"></span>
         <span class="zone" style="left:75%"></span><span class="zone" style="left:100%"></span></div>
       <div class="goal-legend"><span>0</span><span>1,500</span><span>2,000</span></div>
       <div class="goal-tag">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5EE6A8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Goal reached — push for 2,000</div>
+        Goal reached — 8 to go for 2,000</div>
     </div>
   </section>
 
@@ -883,8 +883,8 @@ setTimeout(()=>document.querySelectorAll('#webPages .fill[data-w]').forEach(f=>f
 
 /* ---- Investor: conversion funnel ---- */
 const fsteps=[
-  {n:'App Downloads',v:1842,w:100,c:'linear-gradient(90deg,#8B7CF6,#B79CFF)',note:'100% — top of funnel'},
-  {n:'Sign-ups',v:968,w:70,c:'linear-gradient(90deg,#7B67E8,#9d86ff)',note:'52.6% of downloads registered'},
+  {n:'App Downloads',v:1992,w:100,c:'linear-gradient(90deg,#8B7CF6,#B79CFF)',note:'100% — top of funnel'},
+  {n:'Sign-ups',v:968,w:70,c:'linear-gradient(90deg,#7B67E8,#9d86ff)',note:'48.6% of downloads registered'},
   {n:'Engaged users',v:612,w:47,c:'linear-gradient(90deg,#6f5ff0,#8B7CF6)',note:'63% of sign-ups opened a feature'},
   {n:'Paying customers',v:14,w:24,c:'linear-gradient(90deg,#F6799E,#f5a06e)',note:'1.4% of sign-ups converted to paid'},
 ];
@@ -899,7 +899,7 @@ const rndG=mulberry32(77), GD=90, PROJ=30, t0=new Date();
 let inc=[], labelsG=[];
 for(let i=0;i<GD;i++){const t=i/(GD-1);inc.push((6+28*t)*(0.6+0.7*rndG()));
   const d=new Date(t0);d.setDate(t0.getDate()-(GD-1-i));labelsG.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));}
-const sInc=1842/inc.reduce((a,b)=>a+b,0); inc=inc.map(x=>x*sInc);
+const sInc=1992/inc.reduce((a,b)=>a+b,0); inc=inc.map(x=>x*sInc);
 let cum=[],run=0; inc.forEach(x=>{run+=x;cum.push(Math.round(run));});
 const rate=inc.slice(-14).reduce((a,b)=>a+b,0)/14;
 let pj=Array(GD).fill(null); pj[GD-1]=cum[GD-1]; let pr=cum[GD-1];
