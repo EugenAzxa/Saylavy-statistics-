@@ -352,7 +352,18 @@
     transition:background .2s ease,color .2s ease,border-color .2s ease}
   .vs-script li:hover{background:rgba(139,124,246,.07);color:var(--text)}
   .vs-script li.on{background:rgba(139,124,246,.14);border-left-color:var(--accent);color:var(--text)}
-  @media(max-width:600px){.vs-prog{margin-left:0;width:100%}.vs-btn.primary{min-width:0;flex:1}}
+  /* Phone: Play gets its own full-width row, then Stop beside the speed chips,
+     then the voice picker. Letting Play just flex:1 next to Stop left the two
+     buttons badly mismatched in width. */
+  @media(max-width:600px){
+    .vs-controls{gap:8px}
+    .vs-btn.primary{min-width:0;flex:1 1 100%;padding:13px 18px}
+    .vs-btn{flex:0 0 auto;min-width:88px}
+    .vs-speed{flex:1 1 auto}
+    .vs-speed button{flex:1 1 0;padding:7px 6px;text-align:center}
+    .vs-voice{flex:1 1 100%;max-width:none}
+    .vs-prog{margin-left:0;width:100%}
+  }
 
   /* Per-section share link */
   .sec-link{display:inline-flex;align-items:center;gap:6px;margin-left:10px;flex:none;cursor:pointer;
@@ -508,7 +519,7 @@
     <span class="ico ico-pulse" style="width:34px;height:34px;background:rgba(94,230,168,.18);--ring:rgba(94,230,168,.4)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5EE6A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>
     </span>
-    <h2>Listen to the summary</h2><span>Every number on this page, spoken in about 90 seconds</span>
+    <h2>Listen to the summary</h2><span>Every number on this page, read aloud</span>
   </div>
   <section style="margin-bottom:16px">
     <div class="card reveal">
@@ -516,8 +527,8 @@
         <button class="vs-btn primary" id="vsPlay" type="button">Play summary</button>
         <button class="vs-btn" id="vsStop" type="button" disabled>Stop</button>
         <div class="vs-speed" id="vsSpeed">
-          <button type="button" data-r="1">1x</button>
-          <button type="button" data-r="1.25" class="on">1.25x</button>
+          <button type="button" data-r="1" class="on">1x</button>
+          <button type="button" data-r="1.25">1.25x</button>
           <button type="button" data-r="1.5">1.5x</button>
           <button type="button" data-r="1.75">1.75x</button>
         </div>
@@ -1773,7 +1784,7 @@ setInterval(render,30000);                    // refresh relative times
   }
 
   const voiceEl=document.getElementById('vsVoice');
-  let idx=0, rate=1.25, playing=false, paused=false, voice=null, voices=[];
+  let idx=0, rate=1, playing=false, paused=false, voice=null, voices=[];
   const PITCH=1.06, VOLUME=0.92, GAP=340;   /* gentle tone, and a beat between points */
   /* Warmest-sounding engines first. The installed set differs on every device,
      so this is a preference order, not a guarantee - hence the picker too. */
@@ -1806,10 +1817,19 @@ setInterval(render,30000);                    // refresh relative times
     if(playing&&!paused) start(idx);   /* hear the new voice immediately */
   });
 
+  /* Rough runtime, so the label tracks the chosen speed instead of claiming a
+     fixed 90 seconds that was only ever true at 1.25x. ~155 wpm is typical for
+     a synthesised voice at rate 1, plus the pause between points. */
+  const WORDS=LINES.join(' ').split(/\s+/).length;
+  function runtime(){
+    const s=WORDS/(155*rate)*60+LINES.length*GAP/1000;
+    return s<100 ? Math.round(s/10)*10+' seconds'
+                 : (Math.round(s/30)/2)+' minutes';
+  }
   function paint(){
     items.forEach((li,i)=>li.classList.toggle('on',playing&&i===idx));
     progEl.textContent=playing?('Point '+(idx+1)+' of '+LINES.length)
-                              :(LINES.length+' points · about 90 seconds');
+                              :(LINES.length+' points · about '+runtime());
     playBtn.textContent=!playing?'Play summary':(paused?'Resume':'Pause');
     stopBtn.disabled=!playing;
     if(playing&&items[idx]){
@@ -1847,7 +1867,8 @@ setInterval(render,30000);                    // refresh relative times
     const b=e.target.closest('button[data-r]'); if(!b) return;
     rate=parseFloat(b.dataset.r);
     [...speedEl.querySelectorAll('button')].forEach(x=>x.classList.toggle('on',x===b));
-    if(playing&&!paused) start(idx);   /* restart current point at the new speed */
+    if(playing&&!paused) start(idx);   /* restart this point at the new speed */
+    else paint();                      /* refresh the runtime estimate */
   });
   scriptEl.addEventListener('click',(e)=>{
     const li=e.target.closest('li[data-i]'); if(!li) return;
