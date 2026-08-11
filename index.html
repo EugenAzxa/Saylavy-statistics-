@@ -155,6 +155,14 @@
   .sales-head::before{content:'';position:absolute;top:-2px;left:0;width:60px;height:3px;
     border-radius:3px;background:var(--sec,var(--accent))}
   .sales-head .ico{order:-1}
+  /* Grid and flex children default to min-width:auto, so a chart canvas still
+     holding its old pixel width props the column open and the layout can never
+     shrink back. Rotating a phone to landscape and back left the whole page
+     wider than the screen because of this. */
+  .grid>*,.kpis>*,.acq>*,.sales>*,.socials>*,.updates>*,.stores>*,.reviews>*,
+  .heat-wrap>*,.livewrap>*,.uecon>*,.banner>*{min-width:0}
+  .chart-box{overflow:hidden}
+  .chart-box canvas{max-width:100%}
   #sec-listen{--sec:#5EE6A8} #sec-appstore{--sec:#F4F3FB} #sec-map{--sec:#B79CFF}
   #sec-taps{--sec:#FF505A}   #sec-website{--sec:#4FD8C4}  #sec-search{--sec:#F5B851}
   #sec-social{--sec:#F6799E} #sec-investor{--sec:#5EE6A8} #sec-sales{--sec:#B79CFF}
