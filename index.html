@@ -318,6 +318,10 @@
   .vs-speed button{font-family:inherit;font-size:12px;color:var(--muted);background:transparent;
     border:none;padding:6px 10px;border-radius:8px;cursor:pointer;transition:all .2s ease}
   .vs-speed button.on{background:rgba(139,124,246,.26);color:var(--text)}
+  .vs-voice{font-family:inherit;font-size:12px;color:var(--muted);background:var(--card);
+    border:1px solid var(--line);padding:8px 10px;border-radius:11px;cursor:pointer;max-width:200px}
+  .vs-voice:hover{color:var(--text);border-color:rgba(139,124,246,.5)}
+  .vs-voice option{background:var(--card-2);color:var(--text)}
   .vs-prog{font-size:12.5px;color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
   .vs-note{font-size:12.5px;color:var(--amber);line-height:1.6;margin-top:12px}
   .vs-script{list-style:none;margin:16px 0 0;padding:0;max-height:250px;overflow-y:auto}
@@ -477,6 +481,7 @@
           <button type="button" data-r="1.5">1.5x</button>
           <button type="button" data-r="1.75">1.75x</button>
         </div>
+        <select class="vs-voice" id="vsVoice" aria-label="Narration voice"></select>
         <span class="vs-prog" id="vsProg"></span>
       </div>
       <div class="vs-note" id="vsNote" hidden></div>
@@ -1669,13 +1674,39 @@ setInterval(render,30000);                    // refresh relative times
     return;
   }
 
-  let idx=0, rate=1.25, playing=false, paused=false, voice=null;
-  function pickVoice(){
-    const vs=speechSynthesis.getVoices()||[];
-    voice=vs.find(v=>/^en[-_]GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||vs[0]||null;
+  const voiceEl=document.getElementById('vsVoice');
+  let idx=0, rate=1.25, playing=false, paused=false, voice=null, voices=[];
+  const PITCH=1.06, VOLUME=0.92, GAP=340;   /* gentle tone, and a beat between points */
+  /* Warmest-sounding engines first. The installed set differs on every device,
+     so this is a preference order, not a guarantee - hence the picker too. */
+  const SOFT=[/samantha/i,/serena/i,/allison/i,/ava/i,/karen/i,/moira/i,/fiona/i,/tessa/i,
+              /sonia/i,/libby/i,/aria/i,/hazel/i,/zira/i,
+              /google uk english female/i,/google us english/i,/female/i];
+  const stored=(k)=>{try{return localStorage.getItem(k);}catch(e){return null;}};
+  function loadVoices(){
+    const all=speechSynthesis.getVoices()||[];
+    voices=all.filter(v=>/^en/i.test(v.lang));
+    if(!voices.length) voices=all;
+    if(!voices.length) return;
+    let best=null;
+    const saved=stored('saylavy-voice');
+    if(saved) best=voices.find(v=>v.name===saved);
+    if(!best) for(let i=0;i<SOFT.length&&!best;i++) best=voices.find(v=>SOFT[i].test(v.name));
+    if(!best) best=voices.find(v=>/^en[-_]GB/i.test(v.lang))||voices[0];
+    voice=best;
+    voiceEl.innerHTML=voices.map(v=>{
+      const label=v.name.replace(/\s*\(.*$/,'');
+      return '<option'+(v===best?' selected':'')+'>'+label+'</option>';
+    }).join('');
+    voiceEl.hidden=voices.length<2;
   }
-  pickVoice();
-  speechSynthesis.addEventListener('voiceschanged',pickVoice);
+  loadVoices();
+  speechSynthesis.addEventListener('voiceschanged',loadVoices);
+  voiceEl.addEventListener('change',()=>{
+    voice=voices.find(v=>v.name.replace(/\s*\(.*$/,'')===voiceEl.value)||voice;
+    try{localStorage.setItem('saylavy-voice',voice.name);}catch(e){}
+    if(playing&&!paused) start(idx);   /* hear the new voice immediately */
+  });
 
   function paint(){
     items.forEach((li,i)=>li.classList.toggle('on',playing&&i===idx));
@@ -1692,9 +1723,15 @@ setInterval(render,30000);                    // refresh relative times
   function speak(){
     if(idx>=LINES.length){ stop(); return; }
     const u=new SpeechSynthesisUtterance(LINES[idx]);
-    u.rate=rate; u.pitch=1; u.lang='en-GB'; if(voice) u.voice=voice;
-    u.onend=()=>{ if(!playing||paused) return; idx++; if(idx<LINES.length){paint();speak();} else stop(); };
-    u.onerror=()=>{ if(!playing) return; idx++; if(idx<LINES.length){paint();speak();} else stop(); };
+    u.rate=rate; u.pitch=PITCH; u.volume=VOLUME;
+    u.lang=(voice&&voice.lang)||'en-GB'; if(voice) u.voice=voice;
+    const advance=()=>{
+      if(!playing||paused) return;
+      idx++;
+      if(idx>=LINES.length){ stop(); return; }
+      setTimeout(()=>{ if(playing&&!paused) speak(); },GAP);
+    };
+    u.onend=advance; u.onerror=advance;
     paint();
     speechSynthesis.speak(u);
   }
