@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Saylavy - Statistics Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='26' fill='%238B7CF6'/><text x='50' y='73' text-anchor='middle' font-family='Arial,sans-serif' font-size='64' font-weight='700' fill='white'>S</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -145,6 +146,17 @@
   .sales-head{display:flex;align-items:center;gap:10px;margin:26px 0 16px;flex-wrap:wrap}
   .sales-head h2{font-size:18px}
   .sales-head span{font-size:13px;color:var(--muted);margin-left:auto}
+  /* Each section gets a rule above it and its own accent colour, so a long
+     scroll (especially on a phone) reads as distinct segments rather than one
+     continuous wall of cards. */
+  .sales-head{position:relative;margin:38px 0 16px;padding-top:22px;border-top:1px solid var(--line)}
+  .sales-head::before{content:'';position:absolute;top:-2px;left:0;width:60px;height:3px;
+    border-radius:3px;background:var(--sec,var(--accent))}
+  .sales-head .ico{order:-1}
+  #sec-listen{--sec:#5EE6A8} #sec-appstore{--sec:#F4F3FB} #sec-map{--sec:#B79CFF}
+  #sec-taps{--sec:#FF505A}   #sec-website{--sec:#4FD8C4}  #sec-search{--sec:#F5B851}
+  #sec-social{--sec:#F6799E} #sec-investor{--sec:#5EE6A8} #sec-sales{--sec:#B79CFF}
+  #sec-stores{--sec:#4FD8C4} #sec-reviews{--sec:#F5B851}  #sec-updates{--sec:#B79CFF}
   .sale-card{background:linear-gradient(180deg,rgba(24,21,54,.9),rgba(20,17,44,.9));border:1px solid var(--line);
     border-radius:18px;padding:22px;position:relative;overflow:hidden}
   .sale-ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
@@ -401,7 +413,10 @@
   /* Phone: tighten the pieces added after the original layout */
   @media(max-width:600px){
     .chips-label{display:none}                       /* header would otherwise overflow */
-    .sales-head span{margin-left:0;width:100%;order:3}/* subtitle drops to its own line */
+    /* subtitle drops to its own line. Must exclude .ico, which is also a span -
+       without :not() the icon inherits order:3 and jumps to the end of the row. */
+    .sales-head>span:not(.ico){margin-left:0;width:100%;order:3}
+    .sales-head h2{font-size:19px}
     .sec-link{margin-left:auto}
     .xp{gap:10px;padding:13px 0}
     .xp-stats{gap:8px}
@@ -1154,8 +1169,9 @@ setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(revealEl),1
 setTimeout(()=>document.querySelectorAll('#locations .fill[data-w]').forEach(f=>f.style.width=f.dataset.w+'%'),300);
 
 /* ---- World usage map ---- */
+let usageMap=null;
 try{
-  new jsVectorMap({
+  usageMap=new jsVectorMap({
     selector:'#usageMap', map:'world',
     backgroundColor:'transparent', zoomOnScroll:false, zoomButtons:false,
     regionStyle:{ initial:{ fill:'#211d40', stroke:'#0e0c26', strokeWidth:0.4 }, hover:{ fill:'#4a3f8a' } },
@@ -1452,6 +1468,9 @@ setPeriod(30);  /* initial render */
    (prevents charts locking a too-narrow width and leaving empty space) */
 function resizeAllCharts(){
   [signupsChart,clicksChart,salesChart,growthChart,retentionChart,webClicksChart].forEach(c=>{try{c&&c.resize();}catch(e){}});
+  /* jsvectormap draws to a fixed-size SVG and does not follow the container on
+     its own, so a phone rotating landscape left the map overflowing the page. */
+  try{ usageMap&&usageMap.updateSize&&usageMap.updateSize(); }catch(e){}
 }
 window.addEventListener('load',resizeAllCharts);
 window.addEventListener('resize',resizeAllCharts);
