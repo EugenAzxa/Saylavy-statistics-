@@ -398,6 +398,20 @@
   .upd-pill.build{color:var(--teal);background:rgba(79,216,196,.12);border:1px solid rgba(79,216,196,.28)}
   .upd-pill.talks{color:var(--amber);background:rgba(245,184,81,.12);border:1px solid rgba(245,184,81,.28)}
   .upd-pill.beta{color:var(--accent-2);background:rgba(139,124,246,.14);border:1px solid rgba(139,124,246,.32)}
+  /* App screenshot strip */
+  .shots{display:flex;gap:14px;overflow-x:auto;margin-top:16px;padding-bottom:8px;
+    scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+  .shots::-webkit-scrollbar{height:7px}
+  .shots::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+  .shots::-webkit-scrollbar-track{background:transparent}
+  .shot-card{flex:0 0 auto;width:186px;margin:0}
+  .shot-frame{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#0b0a26;
+    box-shadow:0 10px 26px rgba(7,6,26,.6);transition:transform .25s cubic-bezier(.22,1,.36,1)}
+  .shot-card:hover .shot-frame{transform:translateY(-4px)}
+  .shot-frame img{width:100%;height:auto;display:block}
+  .shot-cap{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}
+  .shot-cap b{display:block;color:var(--text);font-size:12.5px;font-weight:600;margin-bottom:3px}
+  @media(max-width:600px){.shot-card{width:158px}}
   .upd-text{font-size:13.5px;line-height:1.68;color:var(--muted);margin-top:11px}
   .upd-text b{color:var(--text);font-weight:600}
   .upd-meta{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
@@ -1007,6 +1021,35 @@
     </span>
     <h2>App updates</h2><span>Two in TestFlight · three in development · one in early talks</span>
   </div>
+  <section style="margin-bottom:16px">
+    <div class="card reveal">
+      <h3>The redesigned app</h3>
+      <div class="hint">Screens from the current TestFlight build · the App Store still serves 1.0.4</div>
+      <div class="shots">
+        <figure class="shot-card">
+          <div class="shot-frame"><img src="screenshots/01-home.jpg" width="560" height="1214" loading="lazy" alt="Saylavy home screen showing the Proof of Life countdown"></div>
+          <figcaption class="shot-cap"><b>Home</b>Leads with the Proof of Life countdown and its status, then counters for Memory Pages, Capsules and Friends, with Funeral Planning below.</figcaption>
+        </figure>
+        <figure class="shot-card">
+          <div class="shot-frame"><img src="screenshots/02-proof-of-life.jpg" width="560" height="1214" loading="lazy" alt="Proof of Life tab with countdown, weekly streak and check-in button"></div>
+          <figcaption class="shot-cap"><b>Proof of Life</b>Its own tab: time to the next check-in, a streak across the week, and one button to confirm you are here.</figcaption>
+        </figure>
+        <figure class="shot-card">
+          <div class="shot-frame"><img src="screenshots/04-memory-start.jpg" width="560" height="1214" loading="lazy" alt="Memory Page builder explaining how it works and who the page is for"></div>
+          <figcaption class="shot-cap"><b>Memory Page · start</b>A guided opening: how it works, whether the page is for a person or a pet, then the name it carries.</figcaption>
+        </figure>
+        <figure class="shot-card">
+          <div class="shot-frame"><img src="screenshots/03-memory-media.jpg" width="560" height="1214" loading="lazy" alt="Memory Page builder photo and video upload step"></div>
+          <figcaption class="shot-cap"><b>Memory Page · media</b>Photos and video upload straight into the draft, so nothing is lost if the page is finished later.</figcaption>
+        </figure>
+        <figure class="shot-card">
+          <div class="shot-frame"><img src="screenshots/05-checkin-settings.jpg" width="560" height="1214" loading="lazy" alt="Proof of Life settings showing check-in frequency options"></div>
+          <figcaption class="shot-cap"><b>Check-in settings</b>Frequency from every 12 hours to every 7 days, plus a grace period before a due check-in counts as missed.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
   <section class="updates">
     <div class="card reveal">
       <span class="upd-pill beta">In TestFlight</span>
