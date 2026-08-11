@@ -397,6 +397,7 @@
     letter-spacing:.4px;text-transform:uppercase;padding:5px 11px;border-radius:99px;margin-bottom:13px}
   .upd-pill.build{color:var(--teal);background:rgba(79,216,196,.12);border:1px solid rgba(79,216,196,.28)}
   .upd-pill.talks{color:var(--amber);background:rgba(245,184,81,.12);border:1px solid rgba(245,184,81,.28)}
+  .upd-pill.beta{color:var(--accent-2);background:rgba(139,124,246,.14);border:1px solid rgba(139,124,246,.32)}
   .upd-text{font-size:13.5px;line-height:1.68;color:var(--muted);margin-top:11px}
   .upd-text b{color:var(--text);font-weight:600}
   .upd-meta{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
@@ -1004,9 +1005,33 @@
     <span class="ico ico-wiggle" style="width:34px;height:34px;background:rgba(139,124,246,.18)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B79CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
     </span>
-    <h2>App updates</h2><span>In progress · nothing shipped yet</span>
+    <h2>App updates</h2><span>Two in TestFlight · three in development · one in early talks</span>
   </div>
   <section class="updates">
+    <div class="card reveal">
+      <span class="upd-pill beta">In TestFlight</span>
+      <h3>Redesigned app</h3>
+      <div class="hint">Building with testers now</div>
+      <p class="upd-text">The app has been <b>rebuilt around the check-in</b>. The home screen now leads with the Proof of Life countdown and its status, with Memory Pages, Capsules and Friends as counters underneath, and Funeral Planning given its own card.</p>
+      <p class="upd-text">Proof of Life has its own tab with a weekly streak, and the Memory Page builder has been rewritten into a guided flow: who the page is for, then photos, video and audio, then submit for review.</p>
+      <div class="upd-meta">Status: in TestFlight · App Store still on 1.0.4</div>
+    </div>
+    <div class="card reveal">
+      <span class="upd-pill beta">In TestFlight</span>
+      <h3>Longer check-in windows</h3>
+      <div class="hint">Building with testers now</div>
+      <p class="upd-text">How often Proof of Life asks you to check in is now <b>yours to set</b>: every 12 hours, 24 hours, 48 hours, 72 hours, or once every 7 days. There is a separate grace period on top, so a check-in that comes due does not immediately count as missed.</p>
+      <p class="upd-text">A daily prompt suits some people and feels like pressure to others. Letting someone choose a weekly rhythm makes the feature usable for far more of them.</p>
+      <div class="upd-meta">Status: in TestFlight · 12h to 7 days, plus grace period</div>
+    </div>
+    <div class="card reveal">
+      <span class="upd-pill build">In development</span>
+      <h3>Video editor on the website</h3>
+      <div class="hint">Currently being built by the team</div>
+      <p class="upd-text">A <b>video editor built into the website</b>, so footage can be trimmed and assembled straight in the browser before it goes onto a Memory Page.</p>
+      <p class="upd-text">Most people have the video but not the patience to edit it elsewhere first. Removing that step is the difference between a memory that gets uploaded and one that stays on a phone.</p>
+      <div class="upd-meta">Status: in development · no release date set</div>
+    </div>
     <div class="card reveal">
       <span class="upd-pill build">In development</span>
       <h3>Proof of Life - automatic motion check-in</h3>
@@ -1685,8 +1710,9 @@ setInterval(render,30000);                    // refresh relative times
     "Threads is by far the strongest channel. Those posts pulled "+n(TH_PERIOD.replies)+" replies against "+n(TH_PERIOD.likes)+" likes, a ratio of more than four replies to every like.",
     "The single strongest post asked what object you still actually use that belonged to someone you have lost. It drew "+n(topTh.replies)+" replies on its own, close to sixty percent of all engagement on the account.",
     "X has "+n(xa.followers)+" followers and "+n(X_PERIOD.posts)+" posts, which earned "+n(X_PERIOD.impressions)+" impressions and "+n(X_PERIOD.engagements)+" engagements. Replies, rather than original posts, drove eighty two percent of that reach.",
-    "Three things are in development. Proof of Life is moving to an automatic check in based on real phone movement. An AI conversation window is being built for people who are grieving.",
-    "And Saylavy is in early conversations with Heritage Toronto. Nothing has been signed.",
+    "Two things are already with testers in TestFlight. A full redesign of the app, built around the check in. And check in windows you can set yourself, anywhere from every twelve hours to once a week.",
+    "Three more are in development. Proof of Life moving to an automatic check in based on real phone movement. An AI conversation window for people who are grieving. And a video editor built into the website.",
+    "Saylavy is also in early conversations with Heritage Toronto. Nothing has been signed.",
     "Two gaps worth naming. Google Search Console is not connected yet, so the search section is empty. And Instagram's engagement rate is not yet available.",
     "That is the end of the summary."
   ];
